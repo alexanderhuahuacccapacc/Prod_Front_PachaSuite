@@ -10,8 +10,6 @@
         <span class="date-label">
           <i class="fa-regular fa-clock me-1"></i>{{ now | date:'dd MMM yyyy, HH:mm' }}
         </span>
-
-        <!-- ✉️ Botón bandeja de mensajes -->
         <button class="btn-bandeja" (click)="toggleBandeja()" title="Mensajes de contacto">
           <i class="fa-solid fa-envelope"></i>
           @if (noLeidos() > 0) {
@@ -21,9 +19,7 @@
       </div>
     </div>
 
-    <!-- ============================================================
-         PANEL BANDEJA DE MENSAJES (overlay lateral)
-    ============================================================ -->
+    <!-- BANDEJA MENSAJES -->
     @if (bandejaAbierta()) {
       <div class="bandeja-overlay" (click)="cerrarBandeja()"></div>
       <aside class="bandeja-panel">
@@ -52,7 +48,6 @@
             <i class="fa-solid fa-reply me-1"></i> Respondidos
           </button>
         </div>
-
         @if (loadingM()) {
           <div class="panel-loading"><div class="spinner mx-auto"></div></div>
         } @else if (mensajes().length === 0) {
@@ -64,9 +59,7 @@
           <ul class="mensajes-list">
             @for (m of mensajes(); track m.id) {
               <li class="mensaje-item" [class.no-leido]="!m.leido" (click)="abrirMensaje(m)">
-                <div class="mensaje-avatar">
-                  {{ m.nombre.charAt(0).toUpperCase() }}
-                </div>
+                <div class="mensaje-avatar">{{ m.nombre.charAt(0).toUpperCase() }}</div>
                 <div class="mensaje-body">
                   <div class="mensaje-meta">
                     <span class="mensaje-nombre">{{ m.nombre }}</span>
@@ -75,9 +68,7 @@
                   <div class="mensaje-asunto">{{ m.asunto }}</div>
                   <div class="mensaje-preview">{{ m.mensaje | slice:0:80 }}{{ m.mensaje.length > 80 ? '…' : '' }}</div>
                 </div>
-                @if (!m.leido) {
-                  <span class="dot-unread"></span>
-                }
+                @if (!m.leido) { <span class="dot-unread"></span> }
               </li>
             }
           </ul>
@@ -85,9 +76,7 @@
       </aside>
     }
 
-    <!-- ============================================================
-         MODAL DETALLE DE MENSAJE
-    ============================================================ -->
+    <!-- MODAL MENSAJE -->
     @if (mensajeSeleccionado()) {
       <div class="modal-overlay" (click)="cerrarModal()">
         <div class="modal-mensaje" (click)="$event.stopPropagation()">
@@ -98,24 +87,12 @@
             </button>
           </div>
           <div class="modal-info">
-            <div class="info-row">
-              <i class="fa-solid fa-user"></i>
-              <span>{{ mensajeSeleccionado()!.nombre }}</span>
-            </div>
-            <div class="info-row">
-              <i class="fa-solid fa-envelope"></i>
-              <a [href]="'mailto:' + mensajeSeleccionado()!.email">{{ mensajeSeleccionado()!.email }}</a>
-            </div>
+            <div class="info-row"><i class="fa-solid fa-user"></i><span>{{ mensajeSeleccionado()!.nombre }}</span></div>
+            <div class="info-row"><i class="fa-solid fa-envelope"></i><a [href]="'mailto:' + mensajeSeleccionado()!.email">{{ mensajeSeleccionado()!.email }}</a></div>
             @if (mensajeSeleccionado()!.telefono) {
-              <div class="info-row">
-                <i class="fa-solid fa-phone"></i>
-                <span>{{ mensajeSeleccionado()!.telefono }}</span>
-              </div>
+              <div class="info-row"><i class="fa-solid fa-phone"></i><span>{{ mensajeSeleccionado()!.telefono }}</span></div>
             }
-            <div class="info-row">
-              <i class="fa-regular fa-clock"></i>
-              <span>{{ mensajeSeleccionado()!.createdAt | date:'dd MMM yyyy, HH:mm' }}</span>
-            </div>
+            <div class="info-row"><i class="fa-regular fa-clock"></i><span>{{ mensajeSeleccionado()!.createdAt | date:'dd MMM yyyy, HH:mm' }}</span></div>
           </div>
           <div class="modal-mensaje-texto">{{ mensajeSeleccionado()!.mensaje }}</div>
           <div class="modal-footer">
@@ -130,20 +107,13 @@
       </div>
     }
 
-    <!-- ============================================================
-         COMPOSER RESPUESTA (estilo Gmail)
-    ============================================================ -->
+    <!-- COMPOSER -->
     @if (composerAbierto() && mensajeSeleccionado()) {
       <div class="modal-overlay" (click)="cerrarComposer()">
         <div class="composer-card" (click)="$event.stopPropagation()">
           <div class="composer-header">
-            <span>
-              <i class="fa-solid fa-reply me-2"></i>
-              Responder a {{ mensajeSeleccionado()!.nombre }}
-            </span>
-            <button class="bandeja-close" (click)="cerrarComposer()">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
+            <span><i class="fa-solid fa-reply me-2"></i>Responder a {{ mensajeSeleccionado()!.nombre }}</span>
+            <button class="bandeja-close" (click)="cerrarComposer()"><i class="fa-solid fa-xmark"></i></button>
           </div>
           <div class="composer-to">
             <span class="composer-label">Para</span>
@@ -153,22 +123,15 @@
             <span class="composer-label">Asunto</span>
             <span class="composer-email">Re: {{ mensajeSeleccionado()!.asunto }}</span>
           </div>
-          <textarea
-            class="composer-body"
-            placeholder="Escribe tu respuesta…"
-            rows="6"
+          <textarea class="composer-body" placeholder="Escribe tu respuesta…" rows="6"
             [value]="composerCuerpo()"
-            (input)="composerCuerpo.set($any($event.target).value)">
-          </textarea>
+            (input)="composerCuerpo.set($any($event.target).value)"></textarea>
           <div class="composer-footer">
             <button class="btn btn-primary btn-sm"
                     [disabled]="enviandoResp() || !composerCuerpo().trim()"
                     (click)="enviarRespuesta()">
-              @if (enviandoResp()) {
-                <span class="spinner-sm me-1"></span> Enviando…
-              } @else {
-                <i class="fa-solid fa-paper-plane me-1"></i> Enviar
-              }
+              @if (enviandoResp()) { <span class="spinner-sm me-1"></span> Enviando… }
+              @else { <i class="fa-solid fa-paper-plane me-1"></i> Enviar }
             </button>
             <button class="btn btn-ghost btn-sm" (click)="cerrarComposer()">Cancelar</button>
           </div>
@@ -178,7 +141,7 @@
 
     <div class="admin-content">
 
-      <!-- Stat cards -->
+      <!-- STAT CARDS -->
       <div class="row g-3 mb-4">
         <div class="col-6 col-xl-3">
           <div class="stat-card">
@@ -210,11 +173,25 @@
         </div>
       </div>
 
-      <div class="row g-3">
+      <!-- TABLAS EN PESTAÑAS -->
+      <div class="dash-tabs-panel">
 
-        <!-- Estado habitaciones -->
-        <div class="col-lg-5">
-          <div class="table-wrap">
+        <div class="dash-tabs-header">
+          <button class="dash-tab-btn"
+                  [class.active]="tabActiva === 'habitaciones'"
+                  (click)="tabActiva = 'habitaciones'">
+            <i class="fa-solid fa-bed me-1"></i> Habitaciones
+          </button>
+          <button class="dash-tab-btn"
+                  [class.active]="tabActiva === 'reservas'"
+                  (click)="tabActiva = 'reservas'">
+            <i class="fa-solid fa-calendar me-1"></i> Reservas
+          </button>
+        </div>
+
+        <!-- PESTAÑA HABITACIONES -->
+        @if (tabActiva === 'habitaciones') {
+          <div class="dash-tab-content">
             <div class="panel-header">
               <span>Estado de habitaciones</span>
               <a routerLink="/admin/habitaciones" class="btn btn-ghost btn-sm">Ver todas</a>
@@ -224,13 +201,13 @@
             } @else {
               <table class="data-table">
                 <thead>
-                <tr>
-                  <th>Nº</th>
-                  <th>Nombre</th>
-                  <th>Tipo</th>
-                  <th>Estado</th>
-                  <th>Precio</th>
-                </tr>
+                  <tr>
+                    <th>Nº</th>
+                    <th>Nombre</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th>Precio</th>
+                  </tr>
                 </thead>
                 <tbody>
                   @for (h of habitaciones(); track h.id) {
@@ -246,11 +223,11 @@
               </table>
             }
           </div>
-        </div>
+        }
 
-        <!-- Últimas reservas -->
-        <div class="col-lg-7">
-          <div class="table-wrap">
+        <!-- PESTAÑA RESERVAS -->
+        @if (tabActiva === 'reservas') {
+          <div class="dash-tab-content">
             <div class="panel-header">
               <span>Últimas reservas</span>
               <a routerLink="/admin/reservas" class="btn btn-ghost btn-sm">Ver todas</a>
@@ -265,14 +242,14 @@
             } @else {
               <table class="data-table">
                 <thead>
-                <tr>
-                  <th>Código</th>
-                  <th>Hab.</th>
-                  <th>Check-in</th>
-                  <th>Noches</th>
-                  <th>Total</th>
-                  <th>Estado</th>
-                </tr>
+                  <tr>
+                    <th>Código</th>
+                    <th>Hab.</th>
+                    <th>Check-in</th>
+                    <th>Noches</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                  </tr>
                 </thead>
                 <tbody>
                   @for (r of reservas().slice(0, 6); track r.id) {
@@ -289,9 +266,11 @@
               </table>
             }
           </div>
-        </div>
+        }
 
       </div>
+      <!-- fin tabs -->
+
     </div>
   </main>
 </div>
