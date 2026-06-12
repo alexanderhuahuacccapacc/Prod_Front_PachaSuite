@@ -1,0 +1,164 @@
+<!-- NAVBAR -->
+<nav class="navbar solid">
+  <a class="navbar-brand dark" routerLink="/">
+    <i class="fa-solid fa-mountain-sun me-2"></i>Pacha Suite
+  </a>
+  <ul class="nav-links d-none d-md-flex">
+    <li><a class="dark" routerLink="/">← Volver</a></li>
+  </ul>
+</nav>
+
+<div class="page-wrap">
+
+  <!-- Steps bar -->
+  <div class="container py-4">
+    <div class="steps-bar">
+      @for (s of steps; track s.num) {
+        <div class="step" [class.active]="s.num === 1" [class.completed]="s.num < 1">
+          <div class="step-circle">
+            @if (s.num < 1) { <i class="fa-solid fa-check"></i> } @else { {{ s.num }} }
+          </div>
+          <span class="step-label">{{ s.label }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- Search header -->
+    <div class="search-header">
+      <div>
+        <h1 class="section-title mb-1">Habitaciones disponibles</h1>
+        <p class="search-meta">
+          <i class="fa-regular fa-calendar me-1"></i>
+          {{ busqueda()?.checkIn }} – {{ busqueda()?.checkOut }}
+          &nbsp;·&nbsp;
+          <i class="fa-solid fa-user me-1"></i>
+          {{ busqueda()?.adultos }} adulto{{ busqueda()?.adultos !== 1 ? 's' : '' }}
+          @if (busqueda()?.ninos) {
+            &nbsp;·&nbsp;{{ busqueda()?.ninos }} niño{{ busqueda()?.ninos !== 1 ? 's' : '' }}
+          }
+        </p>
+      </div>
+      <button class="btn btn-ghost btn-sm" (click)="goBack()">
+        <i class="fa-solid fa-arrow-left me-1"></i>Cambiar fechas
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="spinner mx-auto mb-3"></div>
+      <p>Buscando habitaciones disponibles…</p>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (errorMsg()) {
+    <div class="container">
+      <div class="alert-error mb-4">
+        <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ errorMsg() }}
+      </div>
+    </div>
+  }
+
+  <!-- Empty -->
+  @if (!loading() && !errorMsg() && habitaciones().length === 0) {
+    <div class="empty-state">
+      <i class="fa-solid fa-bed"></i>
+      <h4>Sin disponibilidad</h4>
+      <p>No hay habitaciones disponibles para las fechas y personas indicadas.</p>
+      <button class="btn btn-primary mt-2" (click)="goBack()">Cambiar búsqueda</button>
+    </div>
+  }
+
+  <!-- Grid de habitaciones -->
+  @if (!loading() && habitaciones().length > 0) {
+    <div class="container pb-5">
+      <div class="row g-4">
+        @for (h of habitaciones(); track h.id) {
+          <div class="col-12 col-md-6 col-xl-4">
+
+            <div class="room-card" [class.selected]="selectedId() === h.id">
+
+              <!-- ── CARRUSEL DE IMÁGENES ── -->
+              <app-room-carousel
+                [imagenes]="getImagenes(h)"
+                [altText]="h.nombre"
+                [badge]="tipoLabel(h.tipo)"
+                badgeColor="primary">
+              </app-room-carousel>
+
+              <!-- Body -->
+              <div class="room-body">
+                <p class="room-type">{{ tipoLabel(h.tipo) }}</p>
+                <h3 class="room-name">{{ h.nombre }}</h3>
+
+                <div class="room-meta">
+                  <span><i class="fa-solid fa-maximize"></i>{{ h.sizeM2 }} m²</span>
+                  <span><i class="fa-solid fa-bed"></i>{{ h.camas }}</span>
+                  <span><i class="fa-solid fa-user-group"></i>Hasta {{ h.capacidad }}</span>
+                </div>
+
+                <!-- Amenidades incluidas -->
+                <div class="room-amenities">
+                  @if (h.amenidades['internet'])     { <span class="badge-amenity"><i class="fa-solid fa-wifi"></i>Wi-Fi</span> }
+                  @if (h.amenidades['banioPrivado']) { <span class="badge-amenity"><i class="fa-solid fa-bath"></i>Baño</span> }
+                  @if (h.amenidades['buffetAndino']) { <span class="badge-amenity"><i class="fa-solid fa-utensils"></i>Buffet</span> }
+                  @if (h.amenidades['cochera'])      { <span class="badge-amenity"><i class="fa-solid fa-car"></i>Cochera</span> }
+                  @if (h.amenidades['cable'])        { <span class="badge-amenity"><i class="fa-solid fa-tv"></i>Cable</span> }
+                  @if (h.amenidades['spa'])          { <span class="badge-amenity"><i class="fa-solid fa-spa"></i>Spa</span> }
+                </div>
+
+                <!-- Extras disponibles (visible al seleccionar) -->
+                @if (selectedId() === h.id && getExtras(h).length > 0) {
+                  <div class="extras-section">
+                    <p class="extras-title">
+                      <i class="fa-solid fa-plus-circle me-1"></i>Agregar servicios extras
+                    </p>
+                    @for (e of getExtras(h); track e.codigo) {
+                      <div class="extra-item"
+                           [class.selected]="isExtraSelected(e.codigo)"
+                           (click)="toggleExtra(e.codigo)">
+                        <div class="extra-icon"><i class="fa-solid {{ e.icono }}"></i></div>
+                        <div class="extra-info">
+                          <div class="extra-name">{{ e.nombre }}</div>
+                          <div class="extra-price">+${{ e.precioNoche }}/noche</div>
+                        </div>
+                        <div class="extra-check">
+                          @if (isExtraSelected(e.codigo)) { <i class="fa-solid fa-check"></i> }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- Footer precio + acción -->
+                <div class="room-footer">
+                  <div class="room-price">
+                    <div class="price-amount">${{ calcPrecio(h) | number:'1.0-0' }}</div>
+                    <div class="price-unit">
+                      por noche · {{ noches() }} noche{{ noches() !== 1 ? 's' : '' }}
+                    </div>
+                  </div>
+
+                  @if (selectedId() === h.id) {
+                    <button class="btn btn-primary" (click)="seleccionar(h)">
+                      <i class="fa-solid fa-arrow-right me-1"></i>Continuar
+                    </button>
+                  } @else {
+                    <button class="btn btn-outline" (click)="expandir(h)">
+                      <i class="fa-solid fa-eye me-1"></i>Seleccionar
+                    </button>
+                  }
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+</div>

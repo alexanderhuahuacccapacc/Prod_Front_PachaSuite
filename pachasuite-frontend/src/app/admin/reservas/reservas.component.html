@@ -1,0 +1,762 @@
+<div class="admin-layout">
+
+  <app-admin-sidebar></app-admin-sidebar>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1>Reservas</h1>
+      <div class="topbar-actions">
+        <select class="filter-select" [(ngModel)]="filtroEstado" (ngModelChange)="applyFilter()">
+          <option value="">Todos los estados</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="confirmada">Confirmada</option>
+          <option value="cancelada">Cancelada</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" (click)="load()">
+          <i class="fa-solid fa-rotate-right me-1"></i>Actualizar
+        </button>
+        <button class="btn btn-primary btn-sm" (click)="abrirNuevaReserva()">
+          <i class="fa-solid fa-plus me-2"></i>Nueva reserva
+        </button>
+      </div>
+    </div>
+
+    <div class="admin-content">
+
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="mini-stat">
+            <span class="ms-val">{{ allReservas().length }}</span>
+            <span class="ms-lbl">Total</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="mini-stat amber">
+            <span class="ms-val">{{ countByEstado('pendiente') }}</span>
+            <span class="ms-lbl">Pendientes</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="mini-stat green">
+            <span class="ms-val">{{ countByEstado('confirmada') }}</span>
+            <span class="ms-lbl">Confirmadas</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="mini-stat brown">
+            <span class="ms-val">${{ ingresoTotal() | number:'1.0-0' }}</span>
+            <span class="ms-lbl">Ingresos</span>
+          </div>
+        </div>
+      </div>
+
+      @if (loading()) {
+        <div class="text-center py-5">
+          <div class="spinner mx-auto mb-3"></div>
+          <p style="color:var(--color-text-muted)">Cargando reservas...</p>
+        </div>
+
+      } @else if (filtered().length === 0) {
+        <div class="empty-card">
+          <i class="fa-solid fa-calendar-xmark"></i>
+          <h5>No hay reservas</h5>
+          <p>{{ filtroEstado ? 'Ninguna reserva con ese estado.' : 'Aún no se han realizado reservas.' }}</p>
+          <button class="btn btn-primary mt-3" (click)="abrirNuevaReserva()">
+            <i class="fa-solid fa-plus me-2"></i>Crear primera reserva
+          </button>
+        </div>
+
+      } @else {
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Habitación</th>
+                <th>Titular</th>
+                <th>Check-in</th>
+                <th>Check-out</th>
+                <th>Noches</th>
+                <th>Total</th>
+                <th>Origen</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of filtered(); track r.id) {
+                <tr [class.row-pending]="r.estado === 'pendiente'"
+                    [class.row-cancelled]="r.estado === 'cancelada'">
+                  <td><code class="codigo-cell">{{ r.codigo }}</code></td>
+                  <td>
+                    <strong>{{ r.habitacionNumero }}</strong>
+                    <span class="sub-text">{{ r.habitacionNombre }}</span>
+                  </td>
+                  <td>
+                    @if (r.huespedes && r.huespedes.length > 0) {
+                      {{ r.huespedes[0].nombre }} {{ r.huespedes[0].apellido }}
+                      <span class="sub-text">{{ r.huespedes[0].email }}</span>
+                    }
+                  </td>
+                  <td>{{ r.checkIn | date:'dd/MM/yyyy' }}</td>
+                  <td>{{ r.checkOut | date:'dd/MM/yyyy' }}</td>
+                  <td class="text-center">{{ r.noches }}</td>
+                  <td><strong class="price-text">${{ r.total | number:'1.2-2' }}</strong></td>
+                  <td>
+                    <span class="origen-badge" [class.admin]="r.origen === 'ADMIN'">
+                      <i class="fa-solid"
+                         [class.fa-globe]="r.origen === 'WEB'"
+                         [class.fa-user-tie]="r.origen === 'ADMIN'"></i>
+                      {{ r.origen }}
+                    </span>
+                  </td>
+                  <td><span class="badge" [ngClass]="badgeClass(r.estado)">{{ r.estado }}</span></td>
+
+                  <!-- ── Acciones ── -->
+                  <td>
+                    <div class="action-btns">
+
+                      <button class="btn btn-sm btn-ghost" (click)="openDetail(r)" title="Ver detalle">
+                        <i class="fa-solid fa-eye"></i>
+                      </button>
+
+                      @if (r.estado === 'pendiente') {
+                        <button class="btn btn-sm btn-success-outline"
+                                (click)="confirmar(r)"
+                                [disabled]="confirmando() === r.id"
+                                title="Confirmar reserva">
+                          @if (confirmando() === r.id) {
+                            <div class="spinner" style="width:14px;height:14px;border-width:2px"></div>
+                          } @else {
+                            <i class="fa-solid fa-check"></i>
+                          }
+                        </button>
+                      }
+
+                      @if (r.estado === 'pendiente') {
+                        <button class="btn btn-sm btn-warning-outline"
+                                (click)="abrirEditar(r)"
+                                title="Editar reserva">
+                          <i class="fa-solid fa-pen"></i>
+                        </button>
+                      }
+
+                      @if (r.estado !== 'cancelada') {
+                        <button class="btn btn-sm btn-danger-outline"
+                                (click)="pedirCancelacion(r)"
+                                title="Cancelar reserva">
+                          <i class="fa-solid fa-xmark"></i>
+                        </button>
+                      }
+
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </main>
+</div>
+
+@if (detailReserva()) {
+  <div class="modal-overlay" (click)="closeDetail()">
+    <div class="modal-box detail-modal" (click)="$event.stopPropagation()">
+
+      <div class="modal-header-row">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <code class="codigo-cell lg">{{ detailReserva()!.codigo }}</code>
+          <span class="badge" [ngClass]="badgeClass(detailReserva()!.estado)">{{ detailReserva()!.estado }}</span>
+          <span class="origen-badge" [class.admin]="detailReserva()!.origen === 'ADMIN'">{{ detailReserva()!.origen }}</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" (click)="closeDetail()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="detail-grid-modal">
+        <div><p class="dm-label">Habitación</p>
+          <p class="dm-val">{{ detailReserva()!.habitacionNombre }} (Nº{{ detailReserva()!.habitacionNumero }})</p></div>
+        <div><p class="dm-label">Fechas</p>
+          <p class="dm-val">{{ detailReserva()!.checkIn | date:'dd/MM/yyyy' }} → {{ detailReserva()!.checkOut | date:'dd/MM/yyyy' }} ({{ detailReserva()!.noches }} noches)</p></div>
+        <div><p class="dm-label">Huéspedes</p>
+          <p class="dm-val">{{ detailReserva()!.adultos }} adultos{{ detailReserva()!.ninos ? ', ' + detailReserva()!.ninos + ' niños' : '' }}</p></div>
+        <div><p class="dm-label">Pago</p>
+          <p class="dm-val">{{ detailReserva()!.pagoEstado }}</p></div>
+        <div><p class="dm-label">Creada</p>
+          <p class="dm-val">{{ detailReserva()!.createdAt | date:'dd/MM/yyyy HH:mm' }}</p></div>
+      </div>
+
+      <div class="price-breakdown-modal">
+        <div class="pb-row"><span>Subtotal</span><span>${{ detailReserva()!.subtotal | number:'1.2-2' }}</span></div>
+        <div class="pb-row"><span>IGV (18%)</span><span>${{ detailReserva()!.impuestos | number:'1.2-2' }}</span></div>
+        <div class="pb-total"><span>Total</span><span>${{ detailReserva()!.total | number:'1.2-2' }}</span></div>
+      </div>
+
+      @if (detailReserva()!.extras && detailReserva()!.extras.length > 0) {
+        <div class="mt-3">
+          <p class="dm-label mb-2">Extras</p>
+          <div class="extras-chips">
+            @for (e of detailReserva()!.extras; track e.codigo) {
+              <span class="extra-chip-sm">
+                <i class="fa-solid {{ e.icono }}"></i> {{ e.nombre }} (+${{ e.precioNoche }}/noche)
+              </span>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="mt-3">
+        <p class="dm-label mb-2">Huéspedes</p>
+        @for (h of detailReserva()!.huespedes; track $index) {
+          <div class="hrow">
+            <div class="guest-avatar-sm">{{ h.nombre.charAt(0) }}</div>
+            <div>
+              <strong>{{ h.nombre }} {{ h.apellido }}</strong>
+              <span class="tipo-tag ms-1">({{ h.tipo }})</span>
+              @if (h.email) { <div class="sub-text">{{ h.email }}</div> }
+              @if (h.documento) { <div class="sub-text">{{ h.documentoTipo }}: {{ h.documento }}</div> }
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="detail-footer">
+        @if (detailReserva()!.estado === 'pendiente') {
+          <button class="btn btn-sm btn-warning-outline" (click)="abrirEditar(detailReserva()!)">
+            <i class="fa-solid fa-pen me-1"></i>Editar
+          </button>
+          <button class="btn btn-sm btn-success-outline" (click)="confirmarFromDetail()">
+            <i class="fa-solid fa-check me-1"></i>Confirmar
+          </button>
+        }
+        @if (detailReserva()!.estado !== 'cancelada') {
+          <button class="btn btn-sm btn-danger-outline" (click)="pedirCancelacion(detailReserva()!)">
+            <i class="fa-solid fa-ban me-1"></i>Cancelar reserva
+          </button>
+        }
+        <button class="btn btn-ghost btn-sm" (click)="closeDetail()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showCancelConfirm()) {
+  <div class="modal-overlay" (click)="cerrarCancelConfirm()">
+    <div class="modal-box cancel-confirm-modal" (click)="$event.stopPropagation()">
+
+      <div class="cancel-icon-wrap">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+
+      <h4 class="cancel-title">¿Cancelar esta reserva?</h4>
+      <p class="cancel-desc">
+        Estás a punto de cancelar la reserva
+        <code class="codigo-cell">{{ showCancelConfirm()!.codigo }}</code>
+        de <strong>{{ showCancelConfirm()!.huespedes && showCancelConfirm()!.huespedes.length > 0 ? showCancelConfirm()!.huespedes[0].nombre + ' ' + showCancelConfirm()!.huespedes[0].apellido : '—' }}</strong>.
+      </p>
+
+      @if (showCancelConfirm()!.estado === 'confirmada') {
+        <div class="cancel-warning">
+          <i class="fa-solid fa-circle-info me-2"></i>
+          Esta reserva ya estaba <strong>confirmada</strong>. Al cancelar,
+          la habitación <strong>Nº{{ showCancelConfirm()!.habitacionNumero }}</strong>
+          volverá a estar disponible.
+        </div>
+      } @else {
+        <div class="cancel-info">
+          <i class="fa-solid fa-circle-info me-2"></i>
+          La habitación <strong>Nº{{ showCancelConfirm()!.habitacionNumero }}</strong>
+          volverá a estar disponible para nuevas reservas.
+        </div>
+      }
+
+      @if (cancelError()) {
+        <div class="alert-error mt-3">
+          <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ cancelError() }}
+        </div>
+      }
+
+      <div class="cancel-footer">
+        <button class="btn btn-ghost" (click)="cerrarCancelConfirm()" [disabled]="cancelando()">
+          Volver
+        </button>
+        <button class="btn btn-danger" (click)="confirmarCancelacion()" [disabled]="cancelando()">
+          @if (cancelando()) {
+            <div class="spinner me-2" style="width:16px;height:16px;border-width:2px"></div>Cancelando...
+          } @else {
+            <i class="fa-solid fa-ban me-2"></i>Sí, cancelar reserva
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showEditModal()) {
+  <div class="modal-overlay" (click)="cerrarEditar()">
+    <div class="modal-box edit-modal" (click)="$event.stopPropagation()">
+
+      <div class="modal-header-row">
+        <div>
+          <h4 class="edit-title">
+            <i class="fa-solid fa-pen me-2"></i>Editar reserva
+          </h4>
+          <code class="codigo-cell">{{ showEditModal()!.codigo }}</code>
+          <span class="edit-subtitle ms-2">Habitación Nº{{ showEditModal()!.habitacionNumero }}</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" (click)="cerrarEditar()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="row g-3 mt-1">
+        <div class="col-sm-6">
+          <div class="form-field">
+            <label>Check-in *</label>
+            <input type="date" [(ngModel)]="editForm.checkIn" [min]="today">
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="form-field">
+            <label>Check-out *</label>
+            <input type="date" [(ngModel)]="editForm.checkOut" [min]="editForm.checkIn || today">
+          </div>
+        </div>
+        <div class="col-sm-4">
+          <div class="form-field">
+            <label>Adultos</label>
+            <select [(ngModel)]="editForm.adultos">
+              <option [value]="1">1</option>
+              <option [value]="2">2</option>
+              <option [value]="3">3</option>
+              <option [value]="4">4</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-sm-4">
+          <div class="form-field">
+            <label>Niños</label>
+            <select [(ngModel)]="editForm.ninos">
+              <option [value]="0">0</option>
+              <option [value]="1">1</option>
+              <option [value]="2">2</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-sm-4">
+          <div class="form-field">
+            <label>Estado pago</label>
+            <select [(ngModel)]="editForm.pagoEstado">
+              @for (p of pagoOpciones; track p.val) {
+                <option [value]="p.val">{{ p.label }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="extras-edit-section mt-3">
+        <p class="extras-edit-title">
+          <i class="fa-solid fa-plus-circle me-1"></i>Extras opcionales
+        </p>
+        <div class="row g-2">
+          @for (e of extrasParaEdicion(); track e.codigo) {
+            <div class="col-6">
+              <div class="extra-item"
+                   [class.selected]="isExtraEnEdicion(e.codigo)"
+                   (click)="toggleExtraEdicion(e.codigo)">
+                <div class="extra-icon"><i class="fa-solid {{ e.icono }}"></i></div>
+                <div class="extra-info">
+                  <div class="extra-name">{{ e.nombre }}</div>
+                  <div class="extra-price">+${{ e.precioNoche }}/noche</div>
+                </div>
+                <div class="extra-check">
+                  @if (isExtraEnEdicion(e.codigo)) { <i class="fa-solid fa-check"></i> }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="edit-notice mt-3">
+        <i class="fa-solid fa-circle-info me-2"></i>
+        Los totales se recalcularán automáticamente con las nuevas fechas y extras seleccionados.
+        No se puede cambiar la habitación desde aquí.
+      </div>
+
+      @if (editError()) {
+        <div class="alert-error mt-3">
+          <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ editError() }}
+        </div>
+      }
+
+      @if (editSuccess()) {
+        <div class="alert-ok mt-3">
+          <i class="fa-solid fa-circle-check me-2"></i>Cambios guardados correctamente.
+        </div>
+      }
+
+      <div class="edit-footer">
+        <button class="btn btn-ghost" (click)="cerrarEditar()">Cancelar</button>
+        <button class="btn btn-primary" (click)="guardarEdicion()" [disabled]="guardando()">
+          @if (guardando()) {
+            <div class="spinner me-2" style="width:16px;height:16px;border-width:2px"></div>Guardando...
+          } @else {
+            <i class="fa-solid fa-floppy-disk me-2"></i>Guardar cambios
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (showNuevaModal()) {
+  <div class="modal-overlay" (click)="cerrarNuevaReserva()">
+    <div class="modal-box nueva-modal" (click)="$event.stopPropagation()">
+
+      <div class="nueva-modal-header">
+        <div>
+          <h4 class="nueva-modal-title">
+            <i class="fa-solid fa-user-tie me-2"></i>Nueva reserva presencial
+          </h4>
+          <p class="nueva-modal-sub">Recepción — sin código de verificación</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" (click)="cerrarNuevaReserva()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="wizard-steps">
+        @for (s of wizardSteps; track s.key) {
+          <div class="wstep" [class.active]="wizardStep() === s.key" [class.completed]="getStepNum() > s.num">
+            <div class="wstep-circle">
+              @if (getStepNum() > s.num) { <i class="fa-solid fa-check"></i> } @else { {{ s.num }} }
+            </div>
+            <span class="wstep-label">{{ s.label }}</span>
+          </div>
+        }
+      </div>
+
+      @if (adminError()) {
+        <div class="alert-error mb-3">
+          <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ adminError() }}
+        </div>
+      }
+
+      @if (wizardStep() === 'fechas') {
+        <div class="wizard-body">
+          <h5 class="step-title"><i class="fa-regular fa-calendar me-2"></i>Fechas y personas</h5>
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <div class="form-field">
+                <label>Check-in *</label>
+                <input type="date" [(ngModel)]="nuevaForm.checkIn" [min]="today">
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="form-field">
+                <label>Check-out *</label>
+                <input type="date" [(ngModel)]="nuevaForm.checkOut" [min]="nuevaForm.checkIn || today">
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="form-field">
+                <label>Adultos</label>
+                <select [(ngModel)]="nuevaForm.adultos">
+                  <option [value]="1">1 adulto</option>
+                  <option [value]="2">2 adultos</option>
+                  <option [value]="3">3 adultos</option>
+                  <option [value]="4">4 adultos</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="form-field">
+                <label>Estado de pago</label>
+                <select [(ngModel)]="nuevaForm.pagoEstado">
+                  @for (p of pagoOpciones; track p.val) {
+                    <option [value]="p.val">{{ p.label }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-footer">
+          <button class="btn btn-ghost" (click)="cerrarNuevaReserva()">Cancelar</button>
+          <button class="btn btn-primary" (click)="buscarHabitaciones()" [disabled]="buscandoHabs()">
+            @if (buscandoHabs()) {
+              <div class="spinner me-2" style="width:16px;height:16px;border-width:2px"></div>Buscando...
+            } @else {
+              <i class="fa-solid fa-magnifying-glass me-2"></i>Ver disponibilidad
+            }
+          </button>
+        </div>
+      }
+
+      @if (wizardStep() === 'habitacion') {
+        <div class="wizard-body">
+          <h5 class="step-title"><i class="fa-solid fa-bed me-2"></i>Seleccionar habitación</h5>
+          @if (habitacionesDisp().length === 0) {
+            <div class="no-habs">
+              <i class="fa-solid fa-bed"></i>
+              <p>Sin disponibilidad para las fechas seleccionadas.</p>
+            </div>
+          }
+          <div class="hab-list">
+            @for (h of habitacionesDisp(); track h.id) {
+              <div class="hab-option" [class.selected]="nuevaForm.habitacionId === h.id" (click)="seleccionarHab(h)">
+                <div class="hab-option-left">
+                  <div class="hab-option-check">
+                    @if (nuevaForm.habitacionId === h.id) { <i class="fa-solid fa-check"></i> }
+                  </div>
+                  <div>
+                    <div class="hab-option-name">
+                      Nº{{ h.numero }} — {{ h.nombre }}
+                      <span class="hab-option-tipo">{{ tipoLabel(h.tipo) }}</span>
+                    </div>
+                    <div class="hab-option-meta">
+                      <span><i class="fa-solid fa-user-group"></i>{{ h.capacidad }} pers.</span>
+                      <span><i class="fa-solid fa-maximize"></i>{{ h.sizeM2 }}m²</span>
+                      <span><i class="fa-solid fa-bed"></i>{{ h.camas }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="hab-option-price">${{ h.precioBase }}<small>/noche</small></div>
+              </div>
+            }
+          </div>
+
+          @if (habSeleccionada() && extrasDisp().length > 0) {
+            <div class="extras-section-admin mt-3">
+              <h6 class="extras-admin-title">
+                <i class="fa-solid fa-plus-circle me-1"></i>Servicios extras opcionales
+              </h6>
+              <div class="row g-2">
+                @for (e of extrasDisp(); track e.codigo) {
+                  <div class="col-6">
+                    <div class="extra-item"
+                         [class.selected]="isExtraSeleccionado(e.codigo)"
+                         (click)="toggleExtraNueva(e.codigo)">
+                      <div class="extra-icon"><i class="fa-solid {{ e.icono }}"></i></div>
+                      <div class="extra-info">
+                        <div class="extra-name">{{ e.nombre }}</div>
+                        <div class="extra-price">+${{ e.precioNoche }}/noche</div>
+                      </div>
+                      <div class="extra-check">
+                        @if (isExtraSeleccionado(e.codigo)) { <i class="fa-solid fa-check"></i> }
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+        <div class="wizard-footer">
+          <button class="btn btn-ghost" (click)="volverAFechas()">
+            <i class="fa-solid fa-arrow-left me-1"></i>Atrás
+          </button>
+          <button class="btn btn-primary" (click)="irAHuesped()">
+            <i class="fa-solid fa-arrow-right me-2"></i>Datos de huéspedes
+          </button>
+        </div>
+      }
+
+      @if (wizardStep() === 'huesped') {
+        <div class="wizard-body">
+          <h5 class="step-title"><i class="fa-solid fa-users me-2"></i>Datos de huéspedes</h5>
+          <div class="huesped-tabs">
+            @for (h of nuevaForm.huespedes; track $index) {
+              <button class="huesped-tab"
+                      [class.active]="activeHuesped() === $index"
+                      (click)="setActiveHuesped($index)">
+                <i class="fa-solid fa-user me-1"></i>
+                {{ $index === 0 ? 'Titular' : 'Acomp. ' + $index }}
+              </button>
+            }
+          </div>
+          @for (h of nuevaForm.huespedes; track $index) {
+            @if (activeHuesped() === $index) {
+              <div class="huesped-form-panel">
+                <div class="row g-3">
+                  <div class="col-sm-6">
+                    <div class="form-field">
+                      <label>Nombre *</label>
+                      <input type="text" [(ngModel)]="h.nombre" placeholder="Nombre">
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="form-field">
+                      <label>Apellido *</label>
+                      <input type="text" [(ngModel)]="h.apellido" placeholder="Apellido">
+                    </div>
+                  </div>
+                  <div class="col-sm-4">
+                    <div class="form-field">
+                      <label>Documento</label>
+                      <select [(ngModel)]="h.documentoTipo">
+                        <option value="DNI">DNI</option>
+                        <option value="PASAPORTE">Pasaporte</option>
+                        <option value="CE">C.E.</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-sm-8">
+                    <div class="form-field">
+                      <label>Número</label>
+                      <input type="text" [(ngModel)]="h.documento">
+                    </div>
+                  </div>
+                  <div class="col-sm-4">
+                    <div class="form-field">
+                      <label>Edad</label>
+                      <input type="number" [(ngModel)]="h.edad" min="0" max="120">
+                    </div>
+                  </div>
+                  <div class="col-sm-4">
+                    <div class="form-field">
+                      <label>Sexo</label>
+                      <select [(ngModel)]="h.sexo">
+                        <option value="">—</option>
+                        <option value="M">Masculino</option>
+                        <option value="F">Femenino</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-sm-4">
+                    <div class="form-field">
+                      <label>Nacionalidad</label>
+                      <input type="text" [(ngModel)]="h.nacionalidad">
+                    </div>
+                  </div>
+                  @if ($index === 0) {
+                    <div class="col-sm-8">
+                      <div class="form-field">
+                        <label>Email</label>
+                        <input type="email" [(ngModel)]="h.email" placeholder="correo@ejemplo.com">
+                      </div>
+                    </div>
+                    <div class="col-sm-4">
+                      <div class="form-field">
+                        <label>Teléfono</label>
+                        <input type="tel" [(ngModel)]="h.telefono" placeholder="+51 999...">
+                      </div>
+                    </div>
+                  }
+                  <div class="col-12">
+                    <div class="form-field">
+                      <label>Petición especial</label>
+                      <textarea [(ngModel)]="h.peticionEspecial" rows="2" placeholder="Cama extra, dieta, vista..."></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          }
+        </div>
+        <div class="wizard-footer">
+          <button class="btn btn-ghost" (click)="volverAHabitacion()">
+            <i class="fa-solid fa-arrow-left me-1"></i>Atrás
+          </button>
+          <button class="btn btn-primary" (click)="irAResumen()">
+            <i class="fa-solid fa-arrow-right me-2"></i>Revisar reserva
+          </button>
+        </div>
+      }
+
+      @if (wizardStep() === 'resumen') {
+
+        @if (adminSuccess()) {
+          <div class="wizard-body">
+            <div class="success-state">
+              <div class="success-icon"><i class="fa-solid fa-check"></i></div>
+              <h5>Reserva creada exitosamente</h5>
+              <p>La habitación está ahora marcada como <strong>ocupada</strong>.</p>
+              <div class="success-code">{{ adminSuccess()!.codigo }}</div>
+              <div class="success-meta">
+                <span><i class="fa-solid fa-bed me-1"></i>{{ adminSuccess()!.habitacionNombre }}</span>
+                <span><i class="fa-solid fa-calendar me-1"></i>{{ adminSuccess()!.checkIn | date:'dd/MM/yyyy' }} → {{ adminSuccess()!.checkOut | date:'dd/MM/yyyy' }}</span>
+                <span><i class="fa-solid fa-dollar-sign me-1"></i>Total: ${{ adminSuccess()!.total | number:'1.2-2' }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="wizard-footer">
+            <button class="btn btn-primary btn-full" (click)="cerrarNuevaReserva()">
+              <i class="fa-solid fa-check me-2"></i>Listo
+            </button>
+          </div>
+
+        } @else {
+          <div class="wizard-body">
+            <h5 class="step-title"><i class="fa-solid fa-clipboard-check me-2"></i>Resumen de la reserva</h5>
+            <div class="resumen-admin-card">
+              <div class="ra-row">
+                <span class="ra-label">Habitación</span>
+                <span class="ra-val">{{ habNombreResumen() }}</span>
+              </div>
+              <div class="ra-row">
+                <span class="ra-label">Check-in</span>
+                <span class="ra-val">{{ nuevaForm.checkIn | date:'EEEE dd/MM/yyyy' }}</span>
+              </div>
+              <div class="ra-row">
+                <span class="ra-label">Check-out</span>
+                <span class="ra-val">{{ nuevaForm.checkOut | date:'EEEE dd/MM/yyyy' }}</span>
+              </div>
+              <div class="ra-row">
+                <span class="ra-label">Noches</span>
+                <span class="ra-val">{{ noches() }}</span>
+              </div>
+              <div class="ra-row">
+                <span class="ra-label">Huéspedes</span>
+                <span class="ra-val">{{ nuevaForm.adultos }} adultos{{ nuevaForm.ninos ? ', ' + nuevaForm.ninos + ' niños' : '' }}</span>
+              </div>
+              <div class="ra-row">
+                <span class="ra-label">Titular</span>
+                <span class="ra-val">{{ nuevaForm.huespedes[0].nombre }} {{ nuevaForm.huespedes[0].apellido }}</span>
+              </div>
+              @if (extrasNombres()) {
+                <div class="ra-row">
+                  <span class="ra-label">Extras</span>
+                  <span class="ra-val">{{ extrasNombres() }}</span>
+                </div>
+              }
+              <div class="ra-row">
+                <span class="ra-label">Estado pago</span>
+                <span class="ra-val">{{ nuevaForm.pagoEstado }}</span>
+              </div>
+            </div>
+
+            <div class="price-breakdown-modal mt-3">
+              <div class="pb-row"><span>Subtotal</span><span>${{ subtotal() | number:'1.2-2' }}</span></div>
+              <div class="pb-row"><span>IGV (18%)</span><span>${{ impuestos() | number:'1.2-2' }}</span></div>
+              <div class="pb-total"><span>Total</span><span>${{ total() | number:'1.2-2' }}</span></div>
+            </div>
+
+            <div class="admin-notice mt-3">
+              <i class="fa-solid fa-circle-info me-2"></i>
+              Se creará en estado <strong>confirmada</strong> y la habitación pasará a <strong>ocupada</strong> de inmediato.
+            </div>
+          </div>
+          <div class="wizard-footer">
+            <button class="btn btn-ghost" (click)="volverAHuesped()">
+              <i class="fa-solid fa-arrow-left me-1"></i>Atrás
+            </button>
+            <button class="btn btn-primary" (click)="crearReservaAdmin()" [disabled]="creandoAdmin()">
+              @if (creandoAdmin()) {
+                <div class="spinner me-2" style="width:16px;height:16px;border-width:2px"></div>Creando...
+              } @else {
+                <i class="fa-solid fa-floppy-disk me-2"></i>Confirmar y crear reserva
+              }
+            </button>
+          </div>
+        }
+      }
+
+    </div>
+  </div>
+}

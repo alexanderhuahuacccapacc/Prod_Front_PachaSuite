@@ -1,0 +1,263 @@
+<script src="https://www.google.com/recaptcha/api.js?render=6LcZWfUsAAAAAHqiMDxx_5c8KTYWSd3j4JFwjpWz"></script>
+
+<!-- NAVBAR -->
+<nav class="navbar solid">
+  <a class="navbar-brand dark" routerLink="/"><i class="fa-solid fa-mountain-sun me-2"></i>Pacha Suite</a>
+</nav>
+
+<div class="page-wrap">
+  <div class="container py-4">
+
+    <!-- Steps -->
+    <div class="steps-bar">
+      @for (s of steps; track s.num) {
+        <div class="step" [class.active]="s.num === 2" [class.completed]="s.num < 2">
+          <div class="step-circle">
+            @if (s.num < 2) { <i class="fa-solid fa-check"></i> } @else { {{ s.num }} }
+          </div>
+          <span class="step-label">{{ s.label }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="row g-4">
+
+      <!-- LEFT: formularios -->
+      <div class="col-lg-8">
+        <h2 class="section-heading">Datos de los huéspedes</h2>
+
+        @for (h of huespedes(); track $index) {
+          <div class="guest-card mb-3" [class.active]="activeGuest() === $index">
+
+            <!-- Header colapsable -->
+            <div class="guest-card-header" (click)="activeGuest.set($index)">
+              <div class="guest-avatar">{{ getInitial($index) }}</div>
+              <div class="guest-label">
+                Huésped {{ $index + 1 }} – {{ $index === 0 ? 'Titular' : 'Acompañante' }}
+                <span>{{ h.nombre || 'Sin completar' }} {{ h.apellido }}</span>
+              </div>
+              <i class="fa-solid ms-auto chevron-icon"
+                 [class.fa-chevron-up]="activeGuest() === $index"
+                 [class.fa-chevron-down]="activeGuest() !== $index"></i>
+            </div>
+
+            <!-- Formulario expandible -->
+            @if (activeGuest() === $index) {
+              <div class="guest-form-body">
+                <div class="row g-3">
+                  <div class="col-sm-6">
+                    <div class="form-field">
+                      <label>Nombre *</label>
+                      <input type="text" [(ngModel)]="h.nombre" placeholder="Ej: Juan">
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="form-field">
+                      <label>Apellido *</label>
+                      <input type="text" [(ngModel)]="h.apellido" placeholder="Ej: Quispe">
+                    </div>
+                  </div>
+                  <div class="col-sm-4">
+                    <div class="form-field">
+                      <label>Tipo de documento</label>
+                      <select [(ngModel)]="h.documentoTipo">
+                        <option value="DNI">DNI</option>
+                        <option value="PASAPORTE">Pasaporte</option>
+                        <option value="CE">C.E.</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-sm-8">
+                    <div class="form-field">
+                      <label>Número de documento</label>
+                      <input type="text" [(ngModel)]="h.documento">
+                    </div>
+                  </div>
+                  <div class="col-sm-4">
+                    <div class="form-field">
+                      <label>Edad</label>
+                      <input type="number" [(ngModel)]="h.edad" min="0" max="120">
+                    </div>
+                  </div>
+                  <div class="col-sm-4">
+                    <div class="form-field">
+                      <label>Sexo</label>
+                      <select [(ngModel)]="h.sexo">
+                        <option value="">—</option>
+                        <option value="M">Masculino</option>
+                        <option value="F">Femenino</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-sm-4">
+                    <div class="form-field">
+                      <label>Nacionalidad</label>
+                      <input type="text" [(ngModel)]="h.nacionalidad" placeholder="Peruana">
+                    </div>
+                  </div>
+
+                  <!-- Email y teléfono solo para titular -->
+                  @if ($index === 0) {
+                    <div class="col-sm-8">
+                      <div class="form-field">
+                        <label>Email *</label>
+                        <input type="email" [(ngModel)]="h.email"
+                               (ngModelChange)="syncEmail($event)"
+                               placeholder="correo@ejemplo.com">
+                      </div>
+                    </div>
+                    <div class="col-sm-4">
+                      <div class="form-field">
+                        <label>Teléfono</label>
+                        <input type="tel" [(ngModel)]="h.telefono" placeholder="+51 999 000 000">
+                      </div>
+                    </div>
+                  }
+
+                  <div class="col-12">
+                    <div class="form-field">
+                      <label>Petición especial</label>
+                      <textarea [(ngModel)]="h.peticionEspecial" rows="2"
+                                placeholder="Cama extra, vista, dieta especial…"></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+
+          </div>
+        }
+
+        @if (formError()) {
+          <div class="alert-error mb-3">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ formError() }}
+          </div>
+        }
+
+        <button class="btn btn-primary btn-lg btn-full" (click)="abrirVerificacion()">
+          <i class="fa-solid fa-shield-halved me-2"></i>Verificar y reservar
+        </button>
+      </div>
+
+      <!-- RIGHT: resumen -->
+      <div class="col-lg-4">
+        <div class="resumen-card">
+          <h5 class="resumen-title">Resumen de reserva</h5>
+
+          <div class="resumen-row">
+            <span><i class="fa-solid fa-bed me-2"></i>{{ habitacion()?.nombre }}</span>
+          </div>
+          <div class="resumen-row">
+            <span>Check-in</span>
+            <strong>{{ busqueda()?.checkIn }}</strong>
+          </div>
+          <div class="resumen-row">
+            <span>Check-out</span>
+            <strong>{{ busqueda()?.checkOut }}</strong>
+          </div>
+          <div class="resumen-row">
+            <span>Noches</span>
+            <strong>{{ noches() }}</strong>
+          </div>
+          <div class="resumen-row">
+            <span>Huéspedes</span>
+            <strong>{{ busqueda()?.adultos }} adultos</strong>
+          </div>
+
+          @for (e of extrasInfo(); track e.codigo) {
+            <div class="resumen-row extra-row">
+              <span><i class="fa-solid {{ e.icono }} me-2"></i>{{ e.nombre }}</span>
+              <span>+${{ e.precioNoche }}/noche</span>
+            </div>
+          }
+
+          <div class="resumen-divider"></div>
+
+          <div class="resumen-row">
+            <span>Subtotal</span>
+            <strong>${{ subtotal() | number:'1.2-2' }}</strong>
+          </div>
+          <div class="resumen-row">
+            <span>IGV (18%)</span>
+            <strong>${{ impuestos() | number:'1.2-2' }}</strong>
+          </div>
+
+          <div class="resumen-total">
+            <span>Total</span>
+            <span class="total-amount">${{ total() | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VERIFICACIÓN - SOLO EMAIL -->
+@if (showModal()) {
+  <div class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+
+      <div class="modal-header-inner">
+        <div class="modal-icon-wrap">
+          <i class="fa-solid fa-envelope"></i>
+        </div>
+        <h4>Verificación por email</h4>
+        <p>Te enviaremos un código de 6 dígitos a tu correo</p>
+      </div>
+
+      <!-- Información del email -->
+      @if (!codigoEnviado()) {
+        <p class="contacto-info">
+          <i class="fa-solid fa-envelope me-1"></i>
+          Se enviará a <strong>{{ huespedes()[0].email || 'email no ingresado' }}</strong>
+        </p>
+
+        <button class="btn btn-outline btn-full mb-3"
+                (click)="enviarCodigo()" [disabled]="enviando()">
+          @if (enviando()) {
+            <div class="spinner me-2"></div>Enviando...
+          } @else {
+            <i class="fa-solid fa-paper-plane me-2"></i>Enviar código por email
+          }
+        </button>
+
+      } @else {
+        <p class="codigo-sent-msg">
+          <i class="fa-solid fa-circle-check me-1"></i>
+          Código enviado a <strong>{{ emailParaEnvio() }}</strong>
+        </p>
+      }
+
+      <!-- 6 inputs del código -->
+      <div class="code-inputs">
+        @for (i of [0,1,2,3,4,5]; track i) {
+          <input type="text" maxlength="1"
+                 [id]="'digit-' + i"
+                 [value]="digits()[i]"
+                 [class.filled]="digits()[i] !== ''"
+                 (input)="onDigit($event, i)"
+                 (keydown)="onKeydown($event, i)">
+        }
+      </div>
+
+      @if (codigoError()) {
+        <div class="alert-error mb-3">
+          <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ codigoError() }}
+        </div>
+      }
+
+      <button class="btn btn-primary btn-full btn-lg"
+              (click)="confirmarReserva()"
+              [disabled]="codigoCompleto() !== 6 || creando()">
+        @if (creando()) {
+          <div class="spinner me-2"></div>Creando reserva…
+        } @else {
+          <i class="fa-solid fa-check me-2"></i>Confirmar reserva
+        }
+      </button>
+
+      <button class="btn btn-ghost btn-full mt-2" (click)="cerrarModal()">Cancelar</button>
+    </div>
+  </div>
+}

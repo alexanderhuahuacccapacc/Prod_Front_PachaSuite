@@ -1,0 +1,35 @@
+<aside class="sidebar">
+
+  <div class="sidebar-brand">
+    <h2><i class="fa-solid fa-mountain-sun me-2"></i>Pacha Suite</h2>
+    <span>Panel de administración</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a routerLink="/admin/dashboard"    routerLinkActive="active" class="nav-item">
+      <i class="fa-solid fa-gauge"></i> Dashboard
+    </a>
+    <a routerLink="/admin/habitaciones" routerLinkActive="active" class="nav-item">
+      <i class="fa-solid fa-bed"></i> Habitaciones
+    </a>
+    <a routerLink="/admin/reservas"     routerLinkActive="active" class="nav-item">
+      <i class="fa-solid fa-calendar-check"></i> Reservas
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar">
+        <i class="fa-solid fa-user-tie"></i>
+      </div>
+      <div class="user-meta">
+        <span class="user-name">{{ user?.nombre }}</span>
+        <span class="user-role">{{ user?.rol }}</span>
+      </div>
+    </div>
+    <button class="nav-item logout-btn" (click)="logout()">
+      <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+    </button>
+  </div>
+
+</aside>

@@ -1,0 +1,76 @@
+<div class="login-page">
+
+  <!-- Panel izquierdo decorativo -->
+  <div class="login-left">
+    <div class="login-brand">
+      <i class="fa-solid fa-mountain-sun me-2"></i>Pacha Suite
+    </div>
+    <h1 class="login-headline">
+      Panel de<br><em>Administración</em>
+    </h1>
+    <p class="login-sub">
+      Gestiona habitaciones, reservas y huéspedes desde un solo lugar.
+    </p>
+    <div class="login-pattern"></div>
+  </div>
+
+  <!-- Panel derecho: formulario -->
+  <div class="login-right">
+    <div class="login-form-wrap">
+
+      <div class="login-logo-sm">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+
+      <h2>Iniciar sesión</h2>
+      <p class="login-desc">Ingresa tus credenciales de administrador</p>
+
+      <div class="form-field mt-4">
+        <label>Email</label>
+        <input
+          type="email"
+          [(ngModel)]="email"
+          placeholder="admin@pachasuite.com"
+          (keydown.enter)="login()">
+      </div>
+
+      <div class="form-field">
+        <label>Contraseña</label>
+        <div class="input-password-wrap">
+          <input
+            [type]="showPwd() ? 'text' : 'password'"
+            [(ngModel)]="password"
+            placeholder="••••••••"
+            (keydown.enter)="login()">
+          <!-- togglePwd() en lugar de arrow function -->
+          <button class="pwd-toggle" type="button" (click)="togglePwd()">
+            <i class="fa-solid" [class.fa-eye]="!showPwd()" [class.fa-eye-slash]="showPwd()"></i>
+          </button>
+        </div>
+      </div>
+
+      @if (error()) {
+        <div class="alert-error mb-3">
+          <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ error() }}
+        </div>
+      }
+
+      <button
+        class="btn btn-primary btn-full btn-lg mt-2"
+        (click)="login()"
+        [disabled]="loading()">
+        @if (loading()) {
+          <div class="spinner me-2"></div>Ingresando…
+        } @else {
+          <i class="fa-solid fa-arrow-right-to-bracket me-2"></i>Ingresar
+        }
+      </button>
+
+      <p class="back-link">
+        <a routerLink="/"><i class="fa-solid fa-arrow-left me-1"></i>Volver al sitio público</a>
+      </p>
+
+    </div>
+  </div>
+
+</div>

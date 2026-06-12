@@ -1,0 +1,239 @@
+<div class="admin-layout">
+
+  <!-- Sidebar compartido -->
+  <app-admin-sidebar></app-admin-sidebar>
+
+  <!-- Main -->
+  <main class="admin-main">
+
+    <!-- Topbar -->
+    <div class="admin-topbar">
+      <h1>Habitaciones</h1>
+      <div class="topbar-actions">
+        <span class="count-label">
+          {{ habitaciones().length }} habitaciones en total
+        </span>
+      </div>
+    </div>
+
+    <div class="admin-content">
+
+      <!-- Loading -->
+      @if (loading()) {
+        <div class="text-center py-5">
+          <div class="spinner mx-auto"></div>
+        </div>
+      }
+
+      <!-- Grid de habitaciones -->
+      @if (!loading()) {
+        <div class="row g-3">
+          @for (h of habitaciones(); track h.id) {
+            <div class="col-12 col-md-6 col-xl-4">
+              <div class="hab-card">
+
+                <!-- Header: número, nombre, badge estado -->
+                <div class="hab-header">
+                  <div>
+                    <span class="hab-num">Nº {{ h.numero }}</span>
+                    <h5 class="hab-name">{{ h.nombre }}</h5>
+                  </div>
+                  <span class="badge" [ngClass]="badgeClass(h.estado)">
+                    {{ h.estado }}
+                  </span>
+                </div>
+
+                <!-- Meta: capacidad, tamaño, camas -->
+                <div class="hab-meta">
+                  <span><i class="fa-solid fa-user-group"></i>{{ h.capacidad }} pers.</span>
+                  <span><i class="fa-solid fa-maximize"></i>{{ h.sizeM2 }} m²</span>
+                  <span><i class="fa-solid fa-bed"></i>{{ h.camas }}</span>
+                </div>
+
+                <!-- Precio -->
+                <div class="hab-price">
+                  ${{ h.precioBase }}<small>/noche</small>
+                </div>
+
+                <!-- Amenidades con toggles -->
+                <div class="amenidades-list mt-3">
+                  @for (a of amenidadesDef; track a.key) {
+                    <label class="toggle-wrap">
+                      <span class="toggle-label">
+                        <i class="fa-solid {{ a.icon }}"></i>
+                        {{ a.label }}
+                      </span>
+                      <input
+                        type="checkbox"
+                        class="toggle"
+                        [checked]="h.amenidades[a.key]"
+                        (change)="toggleAmenidad(h, a.key, $event)">
+                    </label>
+                  }
+                </div>
+
+                <!-- Acciones -->
+                <div class="hab-actions">
+                  <button class="btn btn-outline btn-sm" (click)="openEdit(h)">
+                    <i class="fa-solid fa-pen me-1"></i>Editar
+                  </button>
+                  <button class="btn btn-outline btn-sm" (click)="abrirModalImagenes(h)">
+                    <i class="fa-solid fa-images me-1"></i>Imágenes
+                    @if (h.imagenes.length) {
+                      <span class="badge-img-count">{{ h.imagenes.length }}</span>
+                    }
+                  </button>
+                  <div class="estado-btns">
+                    @for (e of estados; track e.val) {
+                      <button
+                        class="btn btn-sm"
+                        [class.btn-primary]="h.estado === e.val"
+                        [class.btn-ghost]="h.estado !== e.val"
+                        [title]="'Cambiar a ' + e.label"
+                        (click)="cambiarEstado(h, e.val)">
+                        {{ e.label }}
+                      </button>
+                    }
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+    </div>
+  </main>
+</div>
+<!-- ── Modal de imágenes ── -->
+@if (selectedRoomForImages()) {
+  <div class="modal-overlay" (click)="cerrarModalImagenes()">
+    <div class="modal-box modal-images" (click)="$event.stopPropagation()">
+
+      <h4 class="modal-title">
+        <i class="fa-solid fa-images me-2 text-primary-c"></i>
+        Imágenes — {{ selectedRoomForImages()!.numero }} {{ selectedRoomForImages()!.nombre }}
+      </h4>
+
+      <!-- Galería de imágenes -->
+      <div class="images-gallery">
+        @if (selectedRoomForImages()!.imagenes.length) {
+          <div class="images-grid">
+            @for (img of selectedRoomForImages()!.imagenes; track img; let idx = $index) {
+              <div class="image-item">
+                <img [src]="img" [alt]="'Imagen ' + (idx+1)">
+                <button
+                  class="delete-img-btn"
+                  (click)="eliminarImagen(selectedRoomForImages()!.id, img)"
+                  [disabled]="deleting()[selectedRoomForImages()!.id]">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+                @if (idx === 0) {
+                  <span class="main-badge">Principal</span>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="no-images">
+            <i class="fa-solid fa-camera-slash fa-2x"></i>
+            <p>Esta habitación no tiene imágenes aún</p>
+          </div>
+        }
+
+        <!-- Área de carga -->
+        <div class="upload-area">
+          <label class="upload-btn" [class.uploading]="uploading()[selectedRoomForImages()!.id]">
+            <input
+              type="file"
+              accept="image/*"
+              (change)="subirImagen($event, selectedRoomForImages()!.id)"
+              [disabled]="uploading()[selectedRoomForImages()!.id]">
+            @if (uploading()[selectedRoomForImages()!.id]) {
+              <div class="spinner"></div>
+              <span>Subiendo...</span>
+            } @else {
+              <i class="fa-solid fa-cloud-upload-alt"></i>
+              <span>Seleccionar imagen</span>
+            }
+          </label>
+          <p class="upload-hint">Formatos: JPG, PNG, GIF. Máx 15MB</p>
+        </div>
+      </div>
+
+      <div class="modal-footer-btns">
+        <button class="btn btn-primary" (click)="cerrarModalImagenes()">
+          Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+<!-- ── Modal editar habitación ── -->
+@if (editHab()) {
+  <div class="modal-overlay" (click)="closeEdit()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+
+      <h4 class="modal-title">
+        <i class="fa-solid fa-pen me-2 text-primary-c"></i>
+        Editar — Nº {{ editHab()!.numero }}
+      </h4>
+
+      <!-- Nombre -->
+      <div class="form-field">
+        <label>Nombre de la suite</label>
+        <input type="text" [(ngModel)]="editForm.nombre" placeholder="Ej: Suite Simple Andes">
+      </div>
+
+      <!-- Precio y estado en columnas -->
+      <div class="row g-3">
+        <div class="col-sm-6">
+          <div class="form-field">
+            <label>Precio base (USD / noche)</label>
+            <input type="number" [(ngModel)]="editForm.precioBase" min="0" step="5">
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="form-field">
+            <label>Estado</label>
+            <select [(ngModel)]="editForm.estado">
+              @for (e of estados; track e.val) {
+                <option [value]="e.val">{{ e.label }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feedback -->
+      @if (editError()) {
+        <div class="alert-error mb-3">
+          <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ editError() }}
+        </div>
+      }
+      @if (editOk()) {
+        <div class="alert-ok mb-3">
+          <i class="fa-solid fa-circle-check me-2"></i>Guardado correctamente.
+        </div>
+      }
+
+      <!-- Botones -->
+      <div class="modal-footer-btns">
+        <button class="btn btn-ghost" (click)="closeEdit()">
+          Cancelar
+        </button>
+        <button class="btn btn-primary" (click)="saveEdit()" [disabled]="saving()">
+          @if (saving()) {
+            <div class="spinner me-2" style="width:16px;height:16px;border-width:2px"></div>
+            Guardando…
+          } @else {
+            <i class="fa-solid fa-floppy-disk me-2"></i>Guardar cambios
+          }
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

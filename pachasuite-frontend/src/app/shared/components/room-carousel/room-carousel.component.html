@@ -1,0 +1,51 @@
+<div class="carousel-wrap">
+
+  <!-- Imagen activa -->
+  <div class="carousel-img-wrap">
+    <img
+      [src]="current()"
+      [alt]="altText"
+      class="carousel-img"
+      [class.animating]="isAnimating()"
+      (error)="onImgError($event)">
+
+    <!-- Badge tipo habitación -->
+    @if (badge) {
+      <span class="carousel-badge" [class]="'badge-' + badgeColor">
+        {{ badge }}
+      </span>
+    }
+
+    <!-- Contador -->
+    @if (hasMany()) {
+      <span class="carousel-counter">
+        {{ currentIndex() + 1 }} / {{ total() }}
+      </span>
+    }
+
+    <!-- Flechas -->
+    @if (hasMany()) {
+      <button class="carousel-btn carousel-btn-prev" (click)="prev($event)" aria-label="Anterior">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      <button class="carousel-btn carousel-btn-next" (click)="next($event)" aria-label="Siguiente">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    }
+  </div>
+
+  <!-- Puntos indicadores -->
+  @if (hasMany()) {
+    <div class="carousel-dots">
+      @for (i of indices(); track i) {
+        <button
+          class="carousel-dot"
+          [class.active]="currentIndex() === i"
+          (click)="goToIndex(i, $event)"
+          [attr.aria-label]="'Imagen ' + (i + 1)">
+        </button>
+      }
+    </div>
+  }
+
+</div>

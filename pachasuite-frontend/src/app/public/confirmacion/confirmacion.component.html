@@ -1,0 +1,151 @@
+<!-- NAVBAR -->
+<nav class="navbar solid">
+  <a class="navbar-brand dark" routerLink="/">
+    <i class="fa-solid fa-mountain-sun me-2"></i>Pacha Suite
+  </a>
+</nav>
+
+<div class="page-wrap">
+  <div class="container">
+
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="spinner mx-auto mb-3"></div>
+        <p>Cargando confirmación…</p>
+      </div>
+    }
+
+    @if (!loading() && reserva()) {
+
+      <!-- Hero confirmación -->
+      <div class="confirmation-hero mb-4">
+        <div class="confetti-icon">🎉</div>
+        <h1>¡Reserva confirmada!</h1>
+        <p class="hero-sub">Gracias por elegir Pacha Suite. Te esperamos en Juliaca.</p>
+        <div class="confirmation-code">{{ reserva()!.codigo }}</div>
+        <p class="code-hint">Guarda este código para tus registros</p>
+      </div>
+
+      <div class="row g-4">
+
+        <!-- Detalle reserva -->
+        <div class="col-lg-8">
+          <div class="detail-card">
+            <h5 class="detail-title">
+              <i class="fa-solid fa-bed me-2"></i>Detalle de la reserva
+            </h5>
+
+            <div class="detail-grid">
+              <div class="detail-item">
+                <span class="detail-label">Habitación</span>
+                <span class="detail-val">{{ reserva()!.habitacionNombre }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Tipo</span>
+                <span class="detail-val text-capitalize">{{ reserva()!.habitacionTipo }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Check-in</span>
+                <span class="detail-val">{{ reserva()!.checkIn | date:'EEEE, dd MMMM yyyy' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Check-out</span>
+                <span class="detail-val">{{ reserva()!.checkOut | date:'EEEE, dd MMMM yyyy' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Noches</span>
+                <span class="detail-val">{{ reserva()!.noches }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Huéspedes</span>
+                <span class="detail-val">
+                  {{ reserva()!.adultos }} adultos{{ reserva()!.ninos ? ', ' + reserva()!.ninos + ' niños' : '' }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Estado</span>
+                <span class="badge badge-pendiente">{{ reserva()!.estado }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Pago</span>
+                <span class="badge badge-mant">{{ reserva()!.pagoEstado }}</span>
+              </div>
+            </div>
+
+            <!-- Extras: sin ?. después de ! -->
+            @if (reserva()!.extras && reserva()!.extras.length > 0) {
+              <div class="extras-list mt-3">
+                <p class="detail-label mb-2">Extras incluidos:</p>
+                @for (e of reserva()!.extras; track e.codigo) {
+                  <span class="extra-chip">
+                    <i class="fa-solid {{ e.icono }} me-1"></i>{{ e.nombre }}
+                  </span>
+                }
+              </div>
+            }
+
+            <!-- Precios -->
+            <div class="price-breakdown mt-4">
+              <div class="pb-row">
+                <span>Subtotal</span>
+                <span>${{ reserva()!.subtotal | number:'1.2-2' }}</span>
+              </div>
+              <div class="pb-row">
+                <span>IGV (18%)</span>
+                <span>${{ reserva()!.impuestos | number:'1.2-2' }}</span>
+              </div>
+              <div class="pb-total">
+                <span>Total a pagar</span>
+                <span>${{ reserva()!.total | number:'1.2-2' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Huéspedes -->
+          <div class="detail-card mt-4">
+            <h5 class="detail-title">
+              <i class="fa-solid fa-users me-2"></i>Huéspedes
+            </h5>
+            @for (h of reserva()!.huespedes; track $index) {
+              <div class="huesped-row">
+                <div class="guest-avatar-sm">{{ h.nombre.charAt(0) }}</div>
+                <div>
+                  <strong>{{ h.nombre }} {{ h.apellido }}</strong>
+                  <span class="tipo-badge ms-2">
+                    {{ h.tipo === 'titular' ? '(Titular)' : '(Acompañante)' }}
+                  </span>
+                  @if (h.email) {
+                    <div class="sub-info">{{ h.email }}</div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- CTA card -->
+        <div class="col-lg-4">
+          <div class="cta-card">
+            <i class="fa-solid fa-circle-info cta-icon"></i>
+            <h6>Próximos pasos</h6>
+            <ul class="cta-list">
+              <li><i class="fa-solid fa-check"></i>Recibirás confirmación del hotel</li>
+              <li><i class="fa-solid fa-check"></i>Presenta tu código al hacer check-in</li>
+              <li><i class="fa-solid fa-check"></i>El pago se realiza en recepción</li>
+            </ul>
+            <div class="cta-contact">
+              <p><i class="fa-solid fa-phone me-2"></i>+51 900 000 000</p>
+              <p><i class="fa-solid fa-envelope me-2"></i>reservas&#64;pachasuite.com</p>
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-full mt-3" routerLink="/">
+            <i class="fa-solid fa-house me-2"></i>Volver al inicio
+          </button>
+        </div>
+
+      </div>
+    }
+
+  </div>
+</div>

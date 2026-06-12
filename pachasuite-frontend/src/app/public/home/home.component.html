@@ -1,0 +1,380 @@
+<!-- NAVBAR -->
+<nav class="navbar" [class.scrolled]="scrolled()">
+  <div class="container">
+    <a class="navbar-brand" routerLink="/">
+      <span class="brand-icon"><i class="fa-solid fa-hotel"></i></span>
+      Pacha <span class="brand-accent">Suite</span>
+    </a>
+
+    <ul class="nav-links d-none d-md-flex">
+      <li><a href="#inicio"       [class.dark]="scrolled()">Inicio</a></li>
+      <li><a href="#habitaciones" [class.dark]="scrolled()">Habitaciones</a></li>
+      <li><a href="#servicios"    [class.dark]="scrolled()">Servicios</a></li>
+      <li><a href="#contacto"     [class.dark]="scrolled()">Contacto</a></li>
+      <li>
+        <a routerLink="/admin/login" class="btn-admin">
+          <i class="fa-solid fa-user-shield me-1"></i>Admin
+        </a>
+      </li>
+    </ul>
+
+    <button class="navbar-toggler d-md-none" (click)="toggleMenu()">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+  </div>
+</nav>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section id="inicio" class="hero-section">
+  <div class="hero-background"></div>
+  <div class="hero-overlay"></div>
+
+  <div class="container hero-inner">
+
+    <!-- Copy -->
+    <div class="hero-content">
+      <span class="hero-tagline">Hotel Pacha · Juliaca, Puno – Perú</span>
+      <h1 class="hero-title">
+        Vive el corazón<br><em>de los Andes</em>
+      </h1>
+      <p class="hero-desc">
+        Sumérgete en la cultura altiplánica con el confort y la calidez
+        que solo Pacha Suite puede ofrecerte. A pasos del lago Titicaca.
+      </p>
+      <div class="hero-stats">
+        <div class="hstat"><span class="hstat-n">5★</span><span class="hstat-l">Calificación</span></div>
+        <div class="hstat-div"></div>
+        <div class="hstat"><span class="hstat-n">6</span><span class="hstat-l">Suites</span></div>
+        <div class="hstat-div"></div>
+        <div class="hstat"><span class="hstat-n">+3800</span><span class="hstat-l">m s.n.m.</span></div>
+      </div>
+    </div>
+
+    <!-- Booking form -->
+    <div class="booking-card">
+      <h3 class="booking-title">
+        <i class="fa-regular fa-calendar-check me-2 text-primary-c"></i>
+        Verificar disponibilidad
+      </h3>
+
+      <div class="booking-grid mt-3">
+        <div class="form-group">
+          <label><i class="fa-regular fa-calendar me-1"></i>Check-in</label>
+          <input type="date" [(ngModel)]="form.checkIn" [min]="today">
+        </div>
+        <div class="form-group">
+          <label><i class="fa-regular fa-calendar me-1"></i>Check-out</label>
+          <input type="date" [(ngModel)]="form.checkOut" [min]="form.checkIn || today">
+        </div>
+        <div class="form-group">
+          <label><i class="fa-solid fa-user me-1"></i>Adultos</label>
+          <select [(ngModel)]="form.adultos">
+            <option [value]="1">1 adulto</option>
+            <option [value]="2">2 adultos</option>
+            <option [value]="3">3 adultos</option>
+            <option [value]="4">4 adultos</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label><i class="fa-solid fa-child me-1"></i>Niños</label>
+          <select [(ngModel)]="form.ninos">
+            <option [value]="0">Sin niños</option>
+            <option [value]="1">1 niño</option>
+            <option [value]="2">2 niños</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="captcha-row mt-2">
+        <label class="captcha-box">
+          <input type="checkbox" [(ngModel)]="captchaChecked">
+          <i class="fa-solid fa-shield-halved text-primary-c me-1"></i>
+          No soy un robot
+        </label>
+        <small class="text-muted-c">
+          <i class="fa-solid fa-lock me-1"></i>Tu información está protegida
+        </small>
+      </div>
+
+      @if (error()) {
+        <div class="alert-error mt-2">
+          <i class="fa-solid fa-triangle-exclamation me-1"></i>{{ error() }}
+        </div>
+      }
+
+      <button class="btn-primary-full mt-3" (click)="buscar()">
+        <i class="fa-solid fa-magnifying-glass me-2"></i>Buscar habitaciones
+      </button>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     FEATURES
+     ============================================================ -->
+<section class="features-section">
+  <div class="container">
+    <div class="features-grid">
+      @for (f of features; track f.icon) {
+        <div class="feature-item">
+          <div class="feature-icon">
+            <i class="fa-solid {{ f.icon }}"></i>
+          </div>
+          <h6>{{ f.title }}</h6>
+          <p>{{ f.desc }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     HABITACIONES
+     ============================================================ -->
+<section id="habitaciones" class="rooms-section section-padding">
+  <div class="container">
+    <div class="section-header text-center mb-5">
+      <span class="section-label">Nuestras suites</span>
+      <h2 class="section-title">Habitaciones de <em>ensueño</em></h2>
+      <p class="section-desc">Cada suite cuidadosamente diseñada para brindarte el máximo confort a más de 3800 m s.n.m.</p>
+    </div>
+
+    <div class="rooms-grid">
+      @for (hab of habitaciones; track hab.id) {
+        <div class="room-card">
+          <div class="room-img-wrap">
+            <img [src]="hab.imagenes[0]" [alt]="hab.nombre" loading="lazy">
+            <span class="room-badge">{{ hab.tipo | titlecase }}</span>
+          </div>
+          <div class="room-body">
+            <div class="room-meta">
+              <span><i class="fa-solid fa-maximize me-1"></i>{{ hab.sizeM2 }} m²</span>
+              <span><i class="fa-solid fa-bed me-1"></i>{{ hab.camas }}</span>
+              <span><i class="fa-solid fa-user-group me-1"></i>{{ hab.capacidad }} pers.</span>
+            </div>
+            <h4 class="room-name">{{ hab.nombre }}</h4>
+            <div class="room-amenities">
+              @if (hab.amenidades?.internet) {
+                <span class="amenity-tag"><i class="fa-solid fa-wifi"></i> WiFi</span>
+              }
+              @if (hab.amenidades?.cable) {
+                <span class="amenity-tag"><i class="fa-solid fa-tv"></i> TV Cable</span>
+              }
+              @if (hab.amenidades?.minibar) {
+                <span class="amenity-tag"><i class="fa-solid fa-martini-glass-citrus"></i> Minibar</span>
+              }
+              @if (hab.amenidades?.jacuzzi) {
+                <span class="amenity-tag"><i class="fa-solid fa-bath"></i> Jacuzzi</span>
+              }
+            </div>
+            <div class="room-footer">
+              <div class="room-price">
+                <span class="price-label">Desde</span>
+                <span class="price-val">S/ {{ hab.precioBase }}</span>
+                <span class="price-per">/noche</span>
+              </div>
+              <button class="btn-reservar" (click)="reservarHabitacion(hab)">
+                Reservar <i class="fa-solid fa-arrow-right ms-1"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SERVICIOS (carrusel)
+     ============================================================ -->
+<section id="servicios" class="services-section section-padding">
+  <div class="container">
+    <div class="section-header text-center mb-5">
+      <span class="section-label">Lo que ofrecemos</span>
+      <h2 class="section-title">Servicios de <em>ensueño</em></h2>
+      <p class="section-desc">Cada detalle pensado para convertir tu estancia en una experiencia memorable.</p>
+    </div>
+
+    <div class="services-track">
+      @for (s of services; track s.icon) {
+        <div class="service-card">
+          <div class="service-icon">
+            <i class="fa-solid {{ s.icon }}"></i>
+          </div>
+          <h4>{{ s.title }}</h4>
+          <p>{{ s.desc }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     GALERÍA
+     ============================================================ -->
+<section class="gallery-section section-padding">
+  <div class="container">
+    <div class="section-header text-center mb-5">
+      <span class="section-label">Nuestros espacios</span>
+      <h2 class="section-title">Descubre <em>Pacha Suite</em></h2>
+    </div>
+
+    <div class="gallery-grid">
+      @for (img of galleryImages; track img.src) {
+        <div class="gallery-item" (click)="openLightbox(img)">
+          <img [src]="img.src" [alt]="img.alt" loading="lazy">
+          <div class="gallery-overlay">
+            <i class="fa-solid fa-magnifying-glass-plus"></i>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CONTACTO
+     ============================================================ -->
+<section id="contacto" class="contact-section section-padding">
+  <div class="container">
+    <div class="contact-grid">
+
+      <!-- Info -->
+      <div class="contact-left">
+        <span class="section-label light">Hablemos</span>
+        <h2 class="section-title light">Estamos para <em>atenderte</em></h2>
+        <p class="contact-desc">¿Tienes preguntas o necesitas asistencia especial para tu estancia? Nuestro equipo estará encantado de ayudarte.</p>
+
+        <div class="contact-info-list">
+          <div class="contact-info-item">
+            <div class="contact-info-icon"><i class="fa-solid fa-location-dot"></i></div>
+            <div>
+              <strong>Ubicación</strong>
+              <span>Jr. Moquegua 123, Juliaca<br>Puno, Perú</span>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-info-icon"><i class="fa-solid fa-phone"></i></div>
+            <div>
+              <strong>Teléfono</strong>
+              <span>(+51) 951 234 567<br>Atención 24/7</span>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-info-icon"><i class="fa-solid fa-envelope"></i></div>
+            <div>
+              <strong>Email</strong>
+              <span>reservas&#64;pachasuite.com<br>info&#64;pachasuite.com</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulario -->
+      <div class="contact-right">
+        <h3 class="contact-form-title">Envíanos un mensaje</h3>
+
+        <div class="contact-form-grid">
+          <input class="form-input" type="text"  [(ngModel)]="contactForm.nombre"   placeholder="Nombre completo">
+          <input class="form-input" type="email" [(ngModel)]="contactForm.email"    placeholder="Correo electrónico">
+          <input class="form-input" type="tel"   [(ngModel)]="contactForm.telefono" placeholder="Teléfono">
+          <input class="form-input" type="text"  [(ngModel)]="contactForm.asunto"   placeholder="Asunto">
+        </div>
+        <textarea class="form-textarea" rows="5" [(ngModel)]="contactForm.mensaje" placeholder="Tu mensaje..."></textarea>
+
+        @if (contactSuccess()) {
+          <div class="alert-success mt-2">
+            <i class="fa-solid fa-circle-check me-1"></i>¡Mensaje enviado! Te responderemos pronto.
+          </div>
+        }
+        @if (contactError()) {
+          <div class="alert-error mt-2">
+            <i class="fa-solid fa-triangle-exclamation me-1"></i>{{ contactError() }}
+          </div>
+        }
+
+        <button class="btn-send mt-3" (click)="enviarContacto()" [disabled]="enviandoContacto()">
+          @if (enviandoContacto()) {
+            <i class="fa-solid fa-spinner fa-spin me-2"></i>Enviando...
+          } @else {
+            <i class="fa-solid fa-paper-plane me-2"></i>Enviar mensaje
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- Mapa -->
+    <div class="map-container mt-5">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d678.5206652187914!2d-70.02632584688217!3d-15.841237214883057!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x915d6994ad7c8213%3A0xcfcdfdc1a0d04c83!2sPacha%20Suite!5e0!3m2!1ses-419!2spe!4v1776385628936!5m2!1ses-419!2spe"
+        width="100%" height="400" style="border:0;" allowfullscreen loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+
+      <div class="footer-col brand-col">
+        <div class="footer-brand">Pacha <span>Suite</span></div>
+        <p>Un hotel boutique donde la elegancia andina se encuentra con el confort moderno. Experiencias inolvidables en el corazón del altiplano.</p>
+        <div class="social-icons">
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+          <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h5>Explorar</h5>
+        <a href="#inicio">Inicio</a>
+        <a href="#habitaciones">Habitaciones</a>
+        <a href="#servicios">Servicios</a>
+        <a href="#contacto">Contacto</a>
+      </div>
+
+      <div class="footer-col">
+        <h5>Servicios</h5>
+        <a href="#">WiFi de alta velocidad</a>
+        <a href="#">Desayuno andino</a>
+        <a href="#">Cochera vigilada</a>
+        <a href="#">Smart TV 43"</a>
+        <a href="#">Traslado aeropuerto</a>
+      </div>
+
+      <div class="footer-col">
+        <h5>Contacto</h5>
+        <p class="footer-contact-p">
+          <i class="fa-solid fa-location-dot me-2 text-primary-c"></i>Jr. Moquegua 123, Juliaca<br>
+          <i class="fa-solid fa-phone me-2 text-primary-c"></i>(+51) 951 234 567<br>
+          <i class="fa-solid fa-envelope me-2 text-primary-c"></i>info&#64;pachasuite.com
+        </p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      © 2026 Pacha Suite. Todos los derechos reservados.
+      <span class="ms-2">Diseñado con <i class="fa-solid fa-heart text-primary-c mx-1"></i> para viajeros exigentes.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- LIGHTBOX MODAL -->
+@if (lightboxImg()) {
+  <div class="lightbox-backdrop" (click)="closeLightbox()">
+    <button class="lightbox-close" (click)="closeLightbox()">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <img [src]="lightboxImg()!.src" [alt]="lightboxImg()!.alt">
+  </div>
+}

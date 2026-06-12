@@ -1,0 +1,203 @@
+.page-wrap {
+  min-height: 100vh;
+  background: var(--color-cream);
+  padding-top: calc(var(--navbar-h) + 2rem);
+  padding-bottom: 4rem;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 5rem 1rem;
+  color: var(--color-text-muted);
+}
+
+.confetti-icon {
+  font-size: 3rem;
+  margin-bottom: .5rem;
+}
+
+.hero-sub {
+  color: rgba(255, 255, 255, .75);
+  margin-bottom: 1rem;
+}
+
+.code-hint {
+  color: rgba(255, 255, 255, .6);
+  font-size: .8125rem;
+  margin-top: .5rem;
+}
+
+// Detail cards
+.detail-card {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.detail-title {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  padding-bottom: .75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .875rem;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: .125rem;
+}
+
+.detail-label {
+  font-size: .6875rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.detail-val {
+  font-size: .9375rem;
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+// Extras
+.extras-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+
+.extra-chip {
+  background: var(--color-cream);
+  border: 1px solid var(--color-border);
+  border-radius: 99px;
+  padding: .25rem .875rem;
+  font-size: .8125rem;
+  color: var(--color-text-muted);
+}
+
+// Price breakdown
+.price-breakdown {
+  background: var(--color-cream);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+}
+
+.pb-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: .875rem;
+  color: var(--color-text-muted);
+  padding: .25rem 0;
+}
+
+.pb-total {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 1.0625rem;
+  border-top: 1px solid var(--color-border);
+  margin-top: .5rem;
+  padding-top: .75rem;
+  color: var(--color-text);
+
+  span:last-child {
+    color: var(--color-primary);
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+  }
+}
+
+// Huéspedes
+.huesped-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: .75rem 0;
+  border-bottom: 1px solid var(--color-border);
+
+  &:last-child { border-bottom: none; }
+}
+
+.guest-avatar-sm {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: white;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tipo-badge {
+  font-size: .75rem;
+  color: var(--color-text-muted);
+}
+
+.sub-info {
+  font-size: .8125rem;
+  color: var(--color-text-muted);
+  margin-top: .125rem;
+}
+
+// CTA card
+.cta-card {
+  background: var(--color-secondary);
+  color: white;
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+}
+
+.cta-icon {
+  font-size: 2rem;
+  margin-bottom: .75rem;
+  display: block;
+}
+
+.cta-card h6 {
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.cta-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: .625rem;
+    font-size: .875rem;
+    padding: .375rem 0;
+    color: rgba(255, 255, 255, .85);
+
+    i { color: rgba(255, 160, 100, .9); }
+  }
+}
+
+.cta-contact p {
+  font-size: .8125rem;
+  color: rgba(255, 255, 255, .65);
+  margin: .375rem 0;
+}

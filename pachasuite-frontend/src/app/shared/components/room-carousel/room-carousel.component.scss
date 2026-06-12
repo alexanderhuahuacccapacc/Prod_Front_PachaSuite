@@ -1,0 +1,133 @@
+.carousel-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.carousel-img-wrap {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  background: var(--color-cream-dk);
+}
+
+.carousel-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.3s ease, transform 0.35s ease;
+
+  &.animating {
+    opacity: 0.75;
+    transform: scale(1.02);
+  }
+}
+
+.carousel-badge {
+  position: absolute;
+  top: .875rem;
+  left: .875rem;
+  font-size: .6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  padding: .25rem .75rem;
+  border-radius: 99px;
+  z-index: 2;
+  backdrop-filter: blur(8px);
+
+  &.badge-primary {
+    background: rgba(194,65,12,.85);
+    color: white;
+  }
+  &.badge-success {
+    background: rgba(22,163,74,.85);
+    color: white;
+  }
+  &.badge-warning {
+    background: rgba(217,119,6,.85);
+    color: white;
+  }
+}
+
+.carousel-counter {
+  position: absolute;
+  top: .875rem;
+  right: .875rem;
+  background: rgba(31,22,17,.6);
+  color: white;
+  font-size: .6875rem;
+  font-weight: 600;
+  padding: .2rem .625rem;
+  border-radius: 99px;
+  backdrop-filter: blur(6px);
+  z-index: 2;
+  letter-spacing: .04em;
+}
+
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(250,247,242,.88);
+  color: var(--color-text);
+  font-size: .75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(31,22,17,.2);
+  transition: all 0.2s ease;
+  opacity: 0;
+
+  &:hover {
+    background: var(--color-white);
+    transform: translateY(-50%) scale(1.08);
+    box-shadow: 0 4px 12px rgba(31,22,17,.25);
+  }
+
+  &-prev { left: .625rem; }
+  &-next { right: .625rem; }
+}
+
+.carousel-wrap:hover .carousel-btn {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .carousel-btn { opacity: 0.8; }
+}
+
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: .375rem;
+  padding: .625rem .5rem .25rem;
+}
+
+.carousel-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-border);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.25s ease;
+
+  &.active {
+    background: var(--color-primary);
+    width: 20px;
+    border-radius: 99px;
+  }
+
+  &:hover:not(.active) {
+    background: var(--color-text-muted);
+    transform: scale(1.2);
+  }
+}
