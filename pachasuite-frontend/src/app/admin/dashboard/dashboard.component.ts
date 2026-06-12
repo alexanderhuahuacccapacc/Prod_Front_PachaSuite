@@ -23,6 +23,7 @@ export class DashboardComponent implements OnInit {
   loadingH     = signal(true);
   loadingR     = signal(true);
   now          = new Date();
+  tabActiva = 'habitaciones';
 
   get totalHabs()   { return this.habitaciones().length; }
   get libres()      { return this.habitaciones().filter(h => h.estado === 'libre').length; }
