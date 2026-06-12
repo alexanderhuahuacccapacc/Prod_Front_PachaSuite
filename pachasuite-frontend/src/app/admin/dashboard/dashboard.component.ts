@@ -45,19 +45,22 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.habitacionService.findAll().subscribe({
-      next: list => { this.habitaciones.set(list); this.loadingH.set(false); },
-      error: ()  => this.loadingH.set(false)
-    });
+  this.habitacionService.findAll().subscribe({
+    next: list => { this.habitaciones.set(list); this.loadingH.set(false); },
+    error: ()  => this.loadingH.set(false)
+  });
 
-    this.reservaService.findAll().subscribe({
-      next: list => { this.reservas.set(list); this.loadingR.set(false); },
-      error: ()  => this.loadingR.set(false)
-    });
+  this.reservaService.findAll().subscribe({
+    next: (res: any) => {
+      const lista = res.content ?? res;
+      this.reservas.set(lista);
+      this.loadingR.set(false);
+    },
+    error: () => this.loadingR.set(false)
+  });
 
-    // Cargar el conteo de no leídos para el badge del botón
-    this.cargarConteo();
-  }
+  this.cargarConteo();
+}
 
   // ── Bandeja ─────────────────────────────────────────────────────
 
