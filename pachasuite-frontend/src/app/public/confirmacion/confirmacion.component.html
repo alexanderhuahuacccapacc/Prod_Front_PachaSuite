@@ -17,7 +17,6 @@
 
     @if (!loading() && reserva()) {
 
-      <!-- Hero confirmación -->
       <div class="confirmation-hero mb-4">
         <div class="confetti-icon">🎉</div>
         <h1>¡Reserva confirmada!</h1>
@@ -28,13 +27,11 @@
 
       <div class="row g-4">
 
-        <!-- Detalle reserva -->
         <div class="col-lg-8">
           <div class="detail-card">
             <h5 class="detail-title">
               <i class="fa-solid fa-bed me-2"></i>Detalle de la reserva
             </h5>
-
             <div class="detail-grid">
               <div class="detail-item">
                 <span class="detail-label">Habitación</span>
@@ -72,7 +69,6 @@
               </div>
             </div>
 
-            <!-- Extras: sin ?. después de ! -->
             @if (reserva()!.extras && reserva()!.extras.length > 0) {
               <div class="extras-list mt-3">
                 <p class="detail-label mb-2">Extras incluidos:</p>
@@ -84,7 +80,6 @@
               </div>
             }
 
-            <!-- Precios -->
             <div class="price-breakdown mt-4">
               <div class="pb-row">
                 <span>Subtotal</span>
@@ -101,7 +96,6 @@
             </div>
           </div>
 
-          <!-- Huéspedes -->
           <div class="detail-card mt-4">
             <h5 class="detail-title">
               <i class="fa-solid fa-users me-2"></i>Huéspedes
@@ -139,11 +133,30 @@
             </div>
           </div>
 
+          <!-- Botón PDF -->
+          @if (!pdfEnviado) {
+            <button class="btn btn-secondary btn-full mt-3"
+                    (click)="enviarPdf()"
+                    [disabled]="enviandoPdf">
+              @if (enviandoPdf) {
+                <div class="spinner me-2" style="width:16px;height:16px;border-width:2px"></div>
+                Enviando PDF...
+              } @else {
+                <i class="fa-solid fa-file-pdf me-2"></i>Enviar PDF al correo
+              }
+            </button>
+          } @else {
+            <div class="alert-ok mt-3">
+              <i class="fa-solid fa-circle-check me-2"></i>
+              PDF enviado a {{ reserva()!.huespedes[0].email }}
+            </div>
+          }
+
           <button class="btn btn-primary btn-full mt-3" routerLink="/">
             <i class="fa-solid fa-house me-2"></i>Volver al inicio
           </button>
-        </div>
 
+        </div>
       </div>
     }
 
