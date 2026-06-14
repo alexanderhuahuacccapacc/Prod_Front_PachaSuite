@@ -20,14 +20,9 @@
   padding-right: 24px;
   box-sizing: border-box;
   
-  @media (max-width: 576px) {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-  
-  @media (max-width: 380px) {
+  @media (max-width: 350px) {
     padding-left: 10px;
-    padding-right: 12px;
+    padding-right: 10px;
   }
 }
 
@@ -340,18 +335,14 @@
   box-sizing: border-box;
   
   @media (max-width: 576px) {
-    padding: 1.1rem;
+    padding: 1.0rem;
   }
   
   @media (max-width: 360px) {
     padding: 1rem;
-    border-radius: 16px;
+    border-radius: 10px;
   }
 
-  @media (max-width: 360px) { // ← AGREGA ESTE BLOQUE
-    padding: 0.875rem;
-    border-radius: 16px;
-  }
 }
 
 .booking-title {
@@ -399,7 +390,7 @@
   }
 
   input, select {
-    padding: 0.65rem 0.85rem;
+    padding: 0.65rem 0.65rem;
     border: 1.5px solid var(--color-border, #E8DFD0);
     border-radius: var(--radius-md, 8px);
     font-size: 0.9375rem;
@@ -441,8 +432,8 @@
 
   input[type="checkbox"] {
     accent-color: var(--color-primary);
-    width: 16px;
-    height: 16px;
+    width: 15px;
+    height: 15px;
   }
 }
 
@@ -471,7 +462,7 @@
 
 .btn-primary-full {
   width: 100%;
-  padding: 0.85rem;
+  padding: 0.75rem;
   background: var(--color-primary);
   color: white;
   border: none;
