@@ -123,6 +123,47 @@
   cursor: pointer;
 }
 
+// ── Menú móvil ──────────────────────────────────────────────
+.mobile-menu {
+  background: white;
+  border-top: 1px solid var(--color-border, #E8DFD0);
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+
+  &.open {
+    max-height: 400px;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem 0 1rem;
+  }
+
+  li a {
+    display: block;
+    padding: 0.85rem 1.5rem;
+    color: var(--color-text);
+    font-weight: 500;
+    font-size: 1rem;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(232, 223, 208, 0.5);
+    transition: color 0.2s, background 0.2s;
+
+    &:hover {
+      color: var(--color-primary);
+      background: rgba(194, 65, 12, 0.04);
+    }
+  }
+}
+
+.btn-admin-mobile {
+  color: var(--color-primary) !important;
+  font-weight: 600 !important;
+  border-bottom: none !important;
+}
+
 // ============================================================
 // HERO
 // ============================================================
@@ -1033,6 +1074,30 @@
   transition: background 0.2s;
 
   &:hover { background: rgba(255,255,255,0.22); }
+}
+
+// ── Responsive booking form ──────────────────────────────────
+@media (max-width: 576px) {
+  .booking-grid {
+    grid-template-columns: 1fr; // una columna en móvil
+  }
+
+  .booking-card {
+    padding: 1.25rem;
+  }
+
+  .captcha-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hero-section {
+    padding: 100px 0 60px;
+  }
+
+  .hero-inner {
+    gap: 2rem;
+  }
 }
 
 @keyframes fadeInUp {

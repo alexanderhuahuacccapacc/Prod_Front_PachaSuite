@@ -7,10 +7,10 @@
     </a>
 
     <ul class="nav-links d-none d-md-flex">
-      <li><a href="#inicio"       [class.dark]="scrolled()">Inicio</a></li>
+      <li><a href="#inicio" [class.dark]="scrolled()">Inicio</a></li>
       <li><a href="#habitaciones" [class.dark]="scrolled()">Habitaciones</a></li>
-      <li><a href="#servicios"    [class.dark]="scrolled()">Servicios</a></li>
-      <li><a href="#contacto"     [class.dark]="scrolled()">Contacto</a></li>
+      <li><a href="#servicios" [class.dark]="scrolled()">Servicios</a></li>
+      <li><a href="#contacto" [class.dark]="scrolled()">Contacto</a></li>
       <li>
         <a routerLink="/admin/login" class="btn-admin">
           <i class="fa-solid fa-user-shield me-1"></i>Admin
@@ -19,8 +19,23 @@
     </ul>
 
     <button class="navbar-toggler d-md-none" (click)="toggleMenu()">
-      <i class="fa-solid fa-bars"></i>
+      <i class="fa-solid" [class.fa-bars]="!menuOpen" [class.fa-xmark]="menuOpen"></i>
     </button>
+  </div>
+
+  <!-- Menú móvil -->
+  <div class="mobile-menu d-md-none" [class.open]="menuOpen">
+    <ul>
+      <li><a href="#inicio" (click)="closeMenu()">Inicio</a></li>
+      <li><a href="#habitaciones" (click)="closeMenu()">Habitaciones</a></li>
+      <li><a href="#servicios" (click)="closeMenu()">Servicios</a></li>
+      <li><a href="#contacto" (click)="closeMenu()">Contacto</a></li>
+      <li>
+        <a routerLink="/admin/login" (click)="closeMenu()" class="btn-admin-mobile">
+          <i class="fa-solid fa-user-shield me-1"></i>Admin
+        </a>
+      </li>
+    </ul>
   </div>
 </nav>
 

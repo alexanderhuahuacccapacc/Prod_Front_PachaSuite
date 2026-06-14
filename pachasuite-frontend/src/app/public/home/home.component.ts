@@ -21,6 +21,9 @@ export class HomeComponent implements OnInit {
 
   form = { checkIn: '', checkOut: '', adultos: 2, ninos: 0 };
 
+  // Propiedades del menú móvil
+  menuOpen = false;
+
   // Propiedades que faltaban
   captchaChecked = false;
   contactSuccess = signal(false);
@@ -84,12 +87,15 @@ export class HomeComponent implements OnInit {
     this.scrolled.set(window.scrollY > 40);
   }
 
-  // Método para el menú responsive
+  // Métodos para el menú móvil
   toggleMenu(): void {
-    const navLinks = document.querySelector('.nav-links');
-    if (navLinks) {
-      navLinks.classList.toggle('show');
-    }
+    this.menuOpen = !this.menuOpen;
+    document.body.style.overflow = this.menuOpen ? 'hidden' : '';
+  }
+
+  closeMenu(): void {
+    this.menuOpen = false;
+    document.body.style.overflow = '';
   }
 
   // Búsqueda de habitaciones
@@ -154,7 +160,6 @@ export class HomeComponent implements OnInit {
       }
     });
   }
-
 
   // Datos de respaldo por si falla el API
   getHabitacionesBackup(): any[] {
