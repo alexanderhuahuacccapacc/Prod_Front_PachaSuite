@@ -335,12 +335,16 @@
   box-sizing: border-box;
   
   @media (max-width: 576px) {
-    padding: 1.0rem;
+    padding: 1.1rem;
   }
   
   @media (max-width: 360px) {
     padding: 1rem;
     border-radius: 10px;
+  }
+  @media (max-width: 360px) { // ← AGREGA ESTE BLOQUE
+    padding: 0.875rem;
+    border-radius: 16px;
   }
 
 }
@@ -390,7 +394,7 @@
   }
 
   input, select {
-    padding: 0.65rem 0.65rem;
+    padding: 0.65rem 0.85rem;
     border: 1.5px solid var(--color-border, #E8DFD0);
     border-radius: var(--radius-md, 8px);
     font-size: 0.9375rem;
@@ -462,7 +466,7 @@
 
 .btn-primary-full {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.85rem;
   background: var(--color-primary);
   color: white;
   border: none;
