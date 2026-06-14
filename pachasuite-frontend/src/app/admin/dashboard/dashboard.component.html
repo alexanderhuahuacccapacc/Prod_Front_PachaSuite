@@ -10,10 +10,13 @@
         <span class="date-label">
           <i class="fa-regular fa-clock me-1"></i>{{ now | date:'dd MMM yyyy, HH:mm' }}
         </span>
+        <button class="btn-bandeja" (click)="abrirBuscador()" title="Buscar reserva por código">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
         <button class="btn-bandeja" (click)="toggleBandeja()" title="Mensajes de contacto">
           <i class="fa-solid fa-envelope"></i>
           @if (noLeidos() > 0) {
-            <span class="badge-count">{{ noLeidos() > 99 ? '99+' : noLeidos() }}</span>
+          <span class="badge-count">{{ noLeidos() > 99 ? '99+' : noLeidos() }}</span>
           }
         </button>
       </div>
@@ -21,122 +24,123 @@
 
     <!-- BANDEJA MENSAJES -->
     @if (bandejaAbierta()) {
-      <div class="bandeja-overlay" (click)="cerrarBandeja()"></div>
-      <aside class="bandeja-panel">
-        <div class="bandeja-header">
-          <span class="bandeja-title">
-            <i class="fa-solid fa-envelope me-2"></i>Mensajes de contacto
-          </span>
-          <div class="bandeja-header-actions">
-            @if (noLeidos() > 0 && tabBandeja() === 'recibidos') {
-              <button class="btn-text-sm" (click)="marcarTodos()" title="Marcar todos como leídos">
-                <i class="fa-solid fa-check-double"></i> Todos leídos
-              </button>
-            }
-            <button class="bandeja-close" (click)="cerrarBandeja()">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-          </div>
-        </div>
-        <div class="bandeja-tabs">
-          <button class="bandeja-tab" [class.active]="tabBandeja() === 'recibidos'"
-                  (click)="cambiarTab('recibidos')">
-            <i class="fa-solid fa-inbox me-1"></i> Recibidos
+    <div class="bandeja-overlay" (click)="cerrarBandeja()"></div>
+    <aside class="bandeja-panel">
+      <div class="bandeja-header">
+        <span class="bandeja-title">
+          <i class="fa-solid fa-envelope me-2"></i>Mensajes de contacto
+        </span>
+        <div class="bandeja-header-actions">
+          @if (noLeidos() > 0 && tabBandeja() === 'recibidos') {
+          <button class="btn-text-sm" (click)="marcarTodos()" title="Marcar todos como leídos">
+            <i class="fa-solid fa-check-double"></i> Todos leídos
           </button>
-          <button class="bandeja-tab" [class.active]="tabBandeja() === 'respondidos'"
-                  (click)="cambiarTab('respondidos')">
-            <i class="fa-solid fa-reply me-1"></i> Respondidos
+          }
+          <button class="bandeja-close" (click)="cerrarBandeja()">
+            <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
-        @if (loadingM()) {
-          <div class="panel-loading"><div class="spinner mx-auto"></div></div>
-        } @else if (mensajes().length === 0) {
-          <div class="panel-empty">
-            <i class="fa-solid fa-envelope-open"></i>
-            <p>{{ tabBandeja() === 'respondidos' ? 'No hay mensajes respondidos' : 'No hay mensajes' }}</p>
+      </div>
+      <div class="bandeja-tabs">
+        <button class="bandeja-tab" [class.active]="tabBandeja() === 'recibidos'" (click)="cambiarTab('recibidos')">
+          <i class="fa-solid fa-inbox me-1"></i> Recibidos
+        </button>
+        <button class="bandeja-tab" [class.active]="tabBandeja() === 'respondidos'" (click)="cambiarTab('respondidos')">
+          <i class="fa-solid fa-reply me-1"></i> Respondidos
+        </button>
+      </div>
+      @if (loadingM()) {
+      <div class="panel-loading">
+        <div class="spinner mx-auto"></div>
+      </div>
+      } @else if (mensajes().length === 0) {
+      <div class="panel-empty">
+        <i class="fa-solid fa-envelope-open"></i>
+        <p>{{ tabBandeja() === 'respondidos' ? 'No hay mensajes respondidos' : 'No hay mensajes' }}</p>
+      </div>
+      } @else {
+      <ul class="mensajes-list">
+        @for (m of mensajes(); track m.id) {
+        <li class="mensaje-item" [class.no-leido]="!m.leido" (click)="abrirMensaje(m)">
+          <div class="mensaje-avatar">{{ m.nombre.charAt(0).toUpperCase() }}</div>
+          <div class="mensaje-body">
+            <div class="mensaje-meta">
+              <span class="mensaje-nombre">{{ m.nombre }}</span>
+              <span class="mensaje-fecha">{{ m.createdAt | date:'dd/MM/yy HH:mm' }}</span>
+            </div>
+            <div class="mensaje-asunto">{{ m.asunto }}</div>
+            <div class="mensaje-preview">{{ m.mensaje | slice:0:80 }}{{ m.mensaje.length > 80 ? '…' : '' }}</div>
           </div>
-        } @else {
-          <ul class="mensajes-list">
-            @for (m of mensajes(); track m.id) {
-              <li class="mensaje-item" [class.no-leido]="!m.leido" (click)="abrirMensaje(m)">
-                <div class="mensaje-avatar">{{ m.nombre.charAt(0).toUpperCase() }}</div>
-                <div class="mensaje-body">
-                  <div class="mensaje-meta">
-                    <span class="mensaje-nombre">{{ m.nombre }}</span>
-                    <span class="mensaje-fecha">{{ m.createdAt | date:'dd/MM/yy HH:mm' }}</span>
-                  </div>
-                  <div class="mensaje-asunto">{{ m.asunto }}</div>
-                  <div class="mensaje-preview">{{ m.mensaje | slice:0:80 }}{{ m.mensaje.length > 80 ? '…' : '' }}</div>
-                </div>
-                @if (!m.leido) { <span class="dot-unread"></span> }
-              </li>
-            }
-          </ul>
+          @if (!m.leido) { <span class="dot-unread"></span> }
+        </li>
         }
-      </aside>
+      </ul>
+      }
+    </aside>
     }
 
     <!-- MODAL MENSAJE -->
     @if (mensajeSeleccionado()) {
-      <div class="modal-overlay" (click)="cerrarModal()">
-        <div class="modal-mensaje" (click)="$event.stopPropagation()">
-          <div class="modal-header">
-            <h3>{{ mensajeSeleccionado()!.asunto }}</h3>
-            <button class="bandeja-close" (click)="cerrarModal()">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
+    <div class="modal-overlay" (click)="cerrarModal()">
+      <div class="modal-mensaje" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>{{ mensajeSeleccionado()!.asunto }}</h3>
+          <button class="bandeja-close" (click)="cerrarModal()">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="modal-info">
+          <div class="info-row"><i class="fa-solid fa-user"></i><span>{{ mensajeSeleccionado()!.nombre }}</span></div>
+          <div class="info-row"><i class="fa-solid fa-envelope"></i><a
+              [href]="'mailto:' + mensajeSeleccionado()!.email">{{ mensajeSeleccionado()!.email }}</a></div>
+          @if (mensajeSeleccionado()!.telefono) {
+          <div class="info-row"><i class="fa-solid fa-phone"></i><span>{{ mensajeSeleccionado()!.telefono }}</span>
           </div>
-          <div class="modal-info">
-            <div class="info-row"><i class="fa-solid fa-user"></i><span>{{ mensajeSeleccionado()!.nombre }}</span></div>
-            <div class="info-row"><i class="fa-solid fa-envelope"></i><a [href]="'mailto:' + mensajeSeleccionado()!.email">{{ mensajeSeleccionado()!.email }}</a></div>
-            @if (mensajeSeleccionado()!.telefono) {
-              <div class="info-row"><i class="fa-solid fa-phone"></i><span>{{ mensajeSeleccionado()!.telefono }}</span></div>
-            }
-            <div class="info-row"><i class="fa-regular fa-clock"></i><span>{{ mensajeSeleccionado()!.createdAt | date:'dd MMM yyyy, HH:mm' }}</span></div>
-          </div>
-          <div class="modal-mensaje-texto">{{ mensajeSeleccionado()!.mensaje }}</div>
-          <div class="modal-footer">
-            <button class="btn btn-primary btn-sm" (click)="abrirComposer()">
-              <i class="fa-solid fa-reply me-1"></i> Responder
-            </button>
-            <button class="btn btn-ghost btn-sm" (click)="eliminarMensaje(mensajeSeleccionado()!.id)">
-              <i class="fa-solid fa-trash me-1"></i> Eliminar
-            </button>
-          </div>
+          }
+          <div class="info-row"><i class="fa-regular fa-clock"></i><span>{{ mensajeSeleccionado()!.createdAt | date:'dd
+              MMM yyyy, HH:mm' }}</span></div>
+        </div>
+        <div class="modal-mensaje-texto">{{ mensajeSeleccionado()!.mensaje }}</div>
+        <div class="modal-footer">
+          <button class="btn btn-primary btn-sm" (click)="abrirComposer()">
+            <i class="fa-solid fa-reply me-1"></i> Responder
+          </button>
+          <button class="btn btn-ghost btn-sm" (click)="eliminarMensaje(mensajeSeleccionado()!.id)">
+            <i class="fa-solid fa-trash me-1"></i> Eliminar
+          </button>
         </div>
       </div>
+    </div>
     }
 
     <!-- COMPOSER -->
     @if (composerAbierto() && mensajeSeleccionado()) {
-      <div class="modal-overlay" (click)="cerrarComposer()">
-        <div class="composer-card" (click)="$event.stopPropagation()">
-          <div class="composer-header">
-            <span><i class="fa-solid fa-reply me-2"></i>Responder a {{ mensajeSeleccionado()!.nombre }}</span>
-            <button class="bandeja-close" (click)="cerrarComposer()"><i class="fa-solid fa-xmark"></i></button>
-          </div>
-          <div class="composer-to">
-            <span class="composer-label">Para</span>
-            <span class="composer-email">{{ mensajeSeleccionado()!.email }}</span>
-          </div>
-          <div class="composer-to">
-            <span class="composer-label">Asunto</span>
-            <span class="composer-email">Re: {{ mensajeSeleccionado()!.asunto }}</span>
-          </div>
-          <textarea class="composer-body" placeholder="Escribe tu respuesta…" rows="6"
-            [value]="composerCuerpo()"
-            (input)="composerCuerpo.set($any($event.target).value)"></textarea>
-          <div class="composer-footer">
-            <button class="btn btn-primary btn-sm"
-                    [disabled]="enviandoResp() || !composerCuerpo().trim()"
-                    (click)="enviarRespuesta()">
-              @if (enviandoResp()) { <span class="spinner-sm me-1"></span> Enviando… }
-              @else { <i class="fa-solid fa-paper-plane me-1"></i> Enviar }
-            </button>
-            <button class="btn btn-ghost btn-sm" (click)="cerrarComposer()">Cancelar</button>
-          </div>
+    <div class="modal-overlay" (click)="cerrarComposer()">
+      <div class="composer-card" (click)="$event.stopPropagation()">
+        <div class="composer-header">
+          <span><i class="fa-solid fa-reply me-2"></i>Responder a {{ mensajeSeleccionado()!.nombre }}</span>
+          <button class="bandeja-close" (click)="cerrarComposer()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="composer-to">
+          <span class="composer-label">Para</span>
+          <span class="composer-email">{{ mensajeSeleccionado()!.email }}</span>
+        </div>
+        <div class="composer-to">
+          <span class="composer-label">Asunto</span>
+          <span class="composer-email">Re: {{ mensajeSeleccionado()!.asunto }}</span>
+        </div>
+        <textarea class="composer-body" placeholder="Escribe tu respuesta…" rows="6" [value]="composerCuerpo()"
+          (input)="composerCuerpo.set($any($event.target).value)"></textarea>
+        <div class="composer-footer">
+          <button class="btn btn-primary btn-sm" [disabled]="enviandoResp() || !composerCuerpo().trim()"
+            (click)="enviarRespuesta()">
+            @if (enviandoResp()) { <span class="spinner-sm me-1"></span> Enviando… }
+            @else { <i class="fa-solid fa-paper-plane me-1"></i> Enviar }
+          </button>
+          <button class="btn btn-ghost btn-sm" (click)="cerrarComposer()">Cancelar</button>
         </div>
       </div>
+    </div>
     }
 
     <div class="admin-content">
@@ -177,95 +181,96 @@
       <div class="dash-tabs-panel">
 
         <div class="dash-tabs-header">
-          <button class="dash-tab-btn"
-                  [class.active]="tabActiva === 'habitaciones'"
-                  (click)="tabActiva = 'habitaciones'">
+          <button class="dash-tab-btn" [class.active]="tabActiva === 'habitaciones'"
+            (click)="tabActiva = 'habitaciones'">
             <i class="fa-solid fa-bed me-1"></i> Habitaciones
           </button>
-          <button class="dash-tab-btn"
-                  [class.active]="tabActiva === 'reservas'"
-                  (click)="tabActiva = 'reservas'">
+          <button class="dash-tab-btn" [class.active]="tabActiva === 'reservas'" (click)="tabActiva = 'reservas'">
             <i class="fa-solid fa-calendar me-1"></i> Reservas
           </button>
         </div>
 
         <!-- PESTAÑA HABITACIONES -->
         @if (tabActiva === 'habitaciones') {
-          <div class="dash-tab-content">
-            <div class="panel-header">
-              <span>Estado de habitaciones</span>
-              <a routerLink="/admin/habitaciones" class="btn btn-ghost btn-sm">Ver todas</a>
-            </div>
-            @if (loadingH()) {
-              <div class="panel-loading"><div class="spinner mx-auto"></div></div>
-            } @else {
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Nº</th>
-                    <th>Nombre</th>
-                    <th>Tipo</th>
-                    <th>Estado</th>
-                    <th>Precio</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (h of habitaciones(); track h.id) {
-                    <tr>
-                      <td><strong>{{ h.numero }}</strong></td>
-                      <td>{{ h.nombre }}</td>
-                      <td class="text-capitalize">{{ h.tipo }}</td>
-                      <td><span class="badge" [ngClass]="badgeH(h.estado)">{{ h.estado }}</span></td>
-                      <td>${{ h.precioBase }}</td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            }
+        <div class="dash-tab-content">
+          <div class="panel-header">
+            <span>Estado de habitaciones</span>
+            <a routerLink="/admin/habitaciones" class="btn btn-ghost btn-sm">Ver todas</a>
           </div>
+          @if (loadingH()) {
+          <div class="panel-loading">
+            <div class="spinner mx-auto"></div>
+          </div>
+          } @else {
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nº</th>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Precio</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (h of habitaciones(); track h.id) {
+              <tr>
+                <td><strong>{{ h.numero }}</strong></td>
+                <td>{{ h.nombre }}</td>
+                <td class="text-capitalize">{{ h.tipo }}</td>
+                <td><span class="badge" [ngClass]="badgeH(h.estado)">{{ h.estado }}</span></td>
+                <td>${{ h.precioBase }}</td>
+              </tr>
+              }
+            </tbody>
+          </table>
+          }
+        </div>
         }
 
         <!-- PESTAÑA RESERVAS -->
         @if (tabActiva === 'reservas') {
-          <div class="dash-tab-content">
-            <div class="panel-header">
-              <span>Últimas reservas</span>
-              <a routerLink="/admin/reservas" class="btn btn-ghost btn-sm">Ver todas</a>
-            </div>
-            @if (loadingR()) {
-              <div class="panel-loading"><div class="spinner mx-auto"></div></div>
-            } @else if (reservas().length === 0) {
-              <div class="panel-empty">
-                <i class="fa-solid fa-calendar-xmark"></i>
-                <p>No hay reservas aún</p>
-              </div>
-            } @else {
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Código</th>
-                    <th>Hab.</th>
-                    <th>Check-in</th>
-                    <th>Noches</th>
-                    <th>Total</th>
-                    <th>Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (r of reservas().slice(0, 6); track r.id) {
-                    <tr>
-                      <td><code class="codigo-sm">{{ r.codigo }}</code></td>
-                      <td>{{ r.habitacionNumero }}</td>
-                      <td>{{ r.checkIn | date:'dd/MM/yy' }}</td>
-                      <td>{{ r.noches }}</td>
-                      <td>${{ r.total | number:'1.0-0' }}</td>
-                      <td><span class="badge" [ngClass]="badgeR(r.estado)">{{ r.estado }}</span></td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            }
+        <div class="dash-tab-content">
+          <div class="panel-header">
+            <span>Últimas reservas</span>
+            <a routerLink="/admin/reservas" class="btn btn-ghost btn-sm">Ver todas</a>
           </div>
+          @if (loadingR()) {
+          <div class="panel-loading">
+            <div class="spinner mx-auto"></div>
+          </div>
+          } @else if (reservas().length === 0) {
+          <div class="panel-empty">
+            <i class="fa-solid fa-calendar-xmark"></i>
+            <p>No hay reservas aún</p>
+          </div>
+          } @else {
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Hab.</th>
+                <th>Check-in</th>
+                <th>Noches</th>
+                <th>Total</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of reservas().slice(0, 6); track r.id) {
+              <tr>
+                <td><code class="codigo-sm">{{ r.codigo }}</code></td>
+                <td>{{ r.habitacionNumero }}</td>
+                <td>{{ r.checkIn | date:'dd/MM/yy' }}</td>
+                <td>{{ r.noches }}</td>
+                <td>${{ r.total | number:'1.0-0' }}</td>
+                <td><span class="badge" [ngClass]="badgeR(r.estado)">{{ r.estado }}</span></td>
+              </tr>
+              }
+            </tbody>
+          </table>
+          }
+        </div>
         }
 
       </div>
@@ -273,4 +278,95 @@
 
     </div>
   </main>
+
+  <!-- MODAL BÚSQUEDA DE RESERVAS -->
+  @if (modalBusqueda()) {
+  <div class="modal-overlay" (click)="cerrarBuscador()">
+    <div class="modal-busqueda" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-magnifying-glass me-2"></i>Buscar reserva</h3>
+        <button class="bandeja-close" (click)="cerrarBuscador()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="busqueda-input-group">
+          <input type="text" class="busqueda-input" placeholder="Ingrese código de reserva (ej: ABC123)"
+            [(ngModel)]="buscarCodigo" (keyup.enter)="buscarPorCodigo()" autofocus>
+          <button class="btn btn-primary" (click)="buscarPorCodigo()"
+            [disabled]="buscandoRes() || !buscarCodigo.trim()">
+            @if (buscandoRes()) {
+            <span class="spinner-sm me-1"></span> Buscando...
+            } @else {
+            <i class="fa-solid fa-search me-1"></i> Buscar
+            }
+          </button>
+        </div>
+
+        @if (errorBusqueda()) {
+        <div class="error-message">
+          <i class="fa-solid fa-circle-exclamation me-2"></i>
+          {{ errorBusqueda() }}
+        </div>
+        }
+
+        @if (reservaBuscada(); as reserva) {
+        <div class="resultado-card">
+          <div class="resultado-header">
+            <span class="codigo-reserva">{{ reserva.codigo }}</span>
+            <span class="badge" [ngClass]="estadoReserva(reserva.estado)">{{ reserva.estado }}</span>
+          </div>
+
+          <div class="resultado-body">
+            <div class="info-row">
+              <i class="fa-solid fa-bed"></i>
+              <span><strong>Habitación:</strong> {{ reserva.habitacionNumero }}</span>
+            </div>
+            <div class="info-row">
+              <i class="fa-regular fa-calendar"></i>
+              <span><strong>Check-in:</strong> {{ reserva.checkIn | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="info-row">
+              <i class="fa-regular fa-calendar-check"></i>
+              <span><strong>Check-out:</strong> {{ reserva.checkOut | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="info-row">
+              <i class="fa-solid fa-moon"></i>
+              <span><strong>Noches:</strong> {{ reserva.noches }}</span>
+            </div>
+            <div class="info-row">
+              <i class="fa-solid fa-user"></i>
+              <span><strong>Huéspedes:</strong> {{ reserva.adultos }} adultos{{ reserva.ninos ? ', ' + reserva.ninos + '
+                niños' : '' }}</span>
+            </div>
+            <div class="info-row">
+              <i class="fa-solid fa-dollar-sign"></i>
+              <span><strong>Total:</strong> ${{ reserva.total | number:'1.0-0' }}</span>
+            </div>
+            @if (reserva.huespedes && reserva.huespedes.length > 0) {
+            <div class="info-row">
+              <i class="fa-solid fa-user-circle"></i>
+              <span><strong>Cliente:</strong> {{ reserva.huespedes[0].nombre }} {{ reserva.huespedes[0].apellido
+                }}</span>
+            </div>
+            <div class="info-row">
+              <i class="fa-solid fa-envelope"></i>
+              <span><strong>Email:</strong> {{ reserva.huespedes[0].email }}</span>
+            </div>
+            }
+          </div>
+
+          <div class="resultado-footer">
+            <a routerLink="/admin/reservas" class="btn btn-ghost btn-sm" (click)="cerrarBuscador()">
+              <i class="fa-solid fa-arrow-right me-1"></i> Ver todas las reservas
+            </a>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+  }
+
 </div>

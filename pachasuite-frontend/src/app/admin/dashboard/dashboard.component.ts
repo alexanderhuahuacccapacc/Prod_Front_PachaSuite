@@ -1,4 +1,3 @@
-// dashboard.component.ts
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe, SlicePipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -7,11 +6,12 @@ import { ReservaService } from '../../core/services/reserva.service';
 import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
 import { Habitacion, ReservaResponse } from '../../core/models/models';
 import { ContactoService, MensajeContacto } from '../../core/services/contacto.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, DatePipe, SlicePipe, DecimalPipe, RouterLink, AdminSidebarComponent],
+  imports: [CommonModule, DatePipe, SlicePipe, DecimalPipe, RouterLink, AdminSidebarComponent, FormsModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
@@ -19,22 +19,27 @@ export class DashboardComponent implements OnInit {
 
   // ── Habitaciones & Reservas ─────────────────────────────────────
   habitaciones = signal<Habitacion[]>([]);
-  reservas     = signal<ReservaResponse[]>([]);
-  loadingH     = signal(true);
-  loadingR     = signal(true);
-  now          = new Date();
+  reservas = signal<ReservaResponse[]>([]);
+  loadingH = signal(true);
+  loadingR = signal(true);
+  now = new Date();
   tabActiva = 'habitaciones';
+  buscarCodigo = '';
+  reservaBuscada = signal<ReservaResponse | null>(null);
+  buscandoRes = signal(false);
+  errorBusqueda = signal('');
+  modalBusqueda = signal(false);
 
-  get totalHabs()   { return this.habitaciones().length; }
-  get libres()      { return this.habitaciones().filter(h => h.estado === 'libre').length; }
-  get pendientes()  { return this.reservas().filter(r => r.estado === 'pendiente').length; }
+  get totalHabs() { return this.habitaciones().length; }
+  get libres() { return this.habitaciones().filter(h => h.estado === 'libre').length; }
+  get pendientes() { return this.reservas().filter(r => r.estado === 'pendiente').length; }
   get confirmadas() { return this.reservas().filter(r => r.estado === 'confirmada').length; }
 
   // ── Mensajes de contacto ────────────────────────────────────────
-  mensajes           = signal<MensajeContacto[]>([]);
-  loadingM           = signal(false);
-  noLeidos           = signal(0);
-  bandejaAbierta     = signal(false);
+  mensajes = signal<MensajeContacto[]>([]);
+  loadingM = signal(false);
+  noLeidos = signal(0);
+  bandejaAbierta = signal(false);
   mensajeSeleccionado = signal<MensajeContacto | null>(null);
   tabBandeja = signal<'recibidos' | 'respondidos'>('recibidos');
   respondidos = signal<MensajeContacto[]>([]);
@@ -43,25 +48,25 @@ export class DashboardComponent implements OnInit {
     private habitacionService: HabitacionService,
     private reservaService: ReservaService,
     private mensajeService: ContactoService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-  this.habitacionService.findAll().subscribe({
-    next: list => { this.habitaciones.set(list); this.loadingH.set(false); },
-    error: ()  => this.loadingH.set(false)
-  });
+    this.habitacionService.findAll().subscribe({
+      next: list => { this.habitaciones.set(list); this.loadingH.set(false); },
+      error: () => this.loadingH.set(false)
+    });
 
-  this.reservaService.findAll().subscribe({
-    next: (res: any) => {
-      const lista = res.content ?? res;
-      this.reservas.set(lista);
-      this.loadingR.set(false);
-    },
-    error: () => this.loadingR.set(false)
-  });
+    this.reservaService.findAll().subscribe({
+      next: (res: any) => {
+        const lista = res.content ?? res;
+        this.reservas.set(lista);
+        this.loadingR.set(false);
+      },
+      error: () => this.loadingR.set(false)
+    });
 
-  this.cargarConteo();
-}
+    this.cargarConteo();
+  }
 
   // ── Bandeja ─────────────────────────────────────────────────────
 
@@ -149,7 +154,7 @@ export class DashboardComponent implements OnInit {
   private cargarConteo(): void {
     this.mensajeService.countNoLeidos().subscribe({
       next: count => this.noLeidos.set(count),
-      error: ()   => this.noLeidos.set(0)
+      error: () => this.noLeidos.set(0)
     });
   }
 
@@ -169,9 +174,9 @@ export class DashboardComponent implements OnInit {
     };
     return map[estado] || '';
   }
-  composerAbierto  = signal(false);
-  composerCuerpo   = signal('');
-  enviandoResp     = signal(false);
+  composerAbierto = signal(false);
+  composerCuerpo = signal('');
+  enviandoResp = signal(false);
 
   abrirComposer(): void {
     this.composerCuerpo.set('');
@@ -196,5 +201,45 @@ export class DashboardComponent implements OnInit {
       },
       error: () => this.enviandoResp.set(false)
     });
+  }
+  abrirBuscador(): void {
+    this.buscarCodigo = '';
+    this.reservaBuscada.set(null);
+    this.errorBusqueda.set('');
+    this.modalBusqueda.set(true);
+  }
+  buscarPorCodigo(): void {
+    const codigo = (this.buscarCodigo || '').trim().toUpperCase();
+    if (!codigo) return;
+
+    this.buscandoRes.set(true);
+    this.errorBusqueda.set('');
+    this.reservaBuscada.set(null);
+
+    this.reservaService.findByCodigo(codigo).subscribe({
+      next: (res: any) => {
+        this.buscandoRes.set(false);
+        this.reservaBuscada.set(res);
+        this.errorBusqueda.set('');
+      },
+      error: () => {
+        this.buscandoRes.set(false);
+        this.errorBusqueda.set('No se encontró reserva con ese código.');
+      }
+    });
+  }
+
+  cerrarBuscador(): void {
+    this.modalBusqueda.set(false);
+  }
+
+  estadoReserva(estado: string): string {
+    const map: Record<string, string> = {
+      pendiente: 'badge-pendiente',
+      confirmada: 'badge-confirmada',
+      cancelada: 'badge-cancelada',
+      finalizada: 'badge-finalizada'
+    };
+    return map[estado] || 'badge-pendiente';
   }
 }

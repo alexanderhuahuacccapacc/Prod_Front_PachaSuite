@@ -110,6 +110,8 @@ export interface ReservaResponse {
   createdAt: string;
   huespedes: HuespedResponse[];
   extras: Extra[];
+  nombreCliente?: string;  // ← AGREGAR ESTO (opcional con ?)
+  email?: string;
 }
 
 export interface HuespedResponse {
