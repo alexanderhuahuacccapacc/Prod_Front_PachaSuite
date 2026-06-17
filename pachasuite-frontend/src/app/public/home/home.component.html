@@ -215,20 +215,24 @@
         <i class="fa-solid fa-chevron-left"></i>
       </button>
 
-      <div class="services-track">
-        @for (s of services; track s.icon; let i = $index) {
-          <div class="service-card"
-               [class.active]="i === currentServiceIndex()"
-               [class.adjacent]="i === (currentServiceIndex() + 1) % services.length ||
-                              i === (currentServiceIndex() - 1 + services.length) % services.length"
-               (click)="goToService(i)">
-            <div class="service-icon">
-              <i class="fa-solid {{ s.icon }}"></i>
+      <div class="services-carousel-3d">
+        <div class="services-track-3d">
+          @for (s of services; track s.icon; let i = $index) {
+            <div class="service-card-3d"
+                 [class.active]="absOffset(i) === 0"
+                 [class.adjacent]="absOffset(i) === 1"
+                 [class.hidden]="absOffset(i) > 2"
+                 [style.transform]="'translate(-50%, -50%) ' + getCardTransform(getServiceOffset(i))"
+                 [style.zIndex]="100 - absOffset(i)"
+                 (click)="goToService(i)">
+              <div class="service-icon">
+                <i class="fa-solid {{ s.icon }}"></i>
+              </div>
+              <h4>{{ s.title }}</h4>
+              <p>{{ s.desc }}</p>
             </div>
-            <h4>{{ s.title }}</h4>
-            <p>{{ s.desc }}</p>
-          </div>
-        }
+          }
+        </div>
       </div>
 
       <button class="carousel-btn next svc-btn" (click)="nextService()">

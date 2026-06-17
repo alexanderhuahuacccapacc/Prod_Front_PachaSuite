@@ -760,63 +760,6 @@
   &:active { transform: scale(0.97); }
 }
 
-// ── SERVICIOS ────────────────────────────────────────────────
-.services-section {
-  background: var(--color-beige, #F0E9DD);
-}
-
-.services-track {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.5rem;
-
-  @media (max-width: 576px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.service-card {
-  background: white;
-  border-radius: var(--radius-lg, 16px);
-  padding: 2rem 1.5rem;
-  text-align: center;
-  box-shadow: 0 2px 12px rgba(62, 38, 21, 0.06);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(62, 38, 21, 0.1);
-  }
-
-  h4 {
-    font-family: var(--font-display), serif;
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--color-secondary-dark);
-    margin-bottom: 0.6rem;
-  }
-
-  p {
-    font-size: 0.8125rem;
-    color: var(--color-text-muted);
-    line-height: 1.6;
-    margin: 0;
-  }
-}
-
-.service-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgba(194,65,12,0.12), rgba(92,58,33,0.08));
-  color: var(--color-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.6rem;
-  margin: 0 auto 1.25rem;
-}
-
 // ── GALERÍA ──────────────────────────────────────────────────
 .gallery-section {
   background: white;
@@ -1196,6 +1139,7 @@
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+
 // ── CARRUSEL DE HABITACIONES ─────────────────────────────────
 .rooms-carousel-wrapper {
   position: relative;
@@ -1307,10 +1251,11 @@
   .price-val   { font-size: 1.25rem; font-weight: 700; color: var(--color-primary); }
   .price-per   { font-size: 0.75rem; color: var(--color-text-light); }
 }
-// ── SERVICIOS (Carrusel 3D) ──────────────────────────────────
+
+// ── SERVICIOS (Carrusel 3D Rotativo - NUEVO) ──────────────────
 .services-section {
   background: var(--color-beige, #F0E9DD);
-  overflow: hidden; // Para evitar desbordes
+  overflow: hidden;
 }
 
 .services-carousel-wrapper {
@@ -1320,8 +1265,9 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 3rem 0;
-  perspective: 1200px; // Profundidad 3D
+  perspective: 1200px;
   min-height: 380px;
+  overflow: visible;
 
   @media (max-width: 768px) {
     min-height: 320px;
@@ -1340,6 +1286,7 @@
   justify-content: center;
   overflow: hidden;
   padding: 0 20px;
+  overflow: visible;
 }
 
 .services-track-3d {
@@ -1367,7 +1314,6 @@
   box-shadow: 0 4px 16px rgba(62, 38, 21, 0.08);
   will-change: transform, opacity;
 
-  // Estado activo (centro)
   &.active {
     width: 240px;
     padding: 2rem 1.5rem;
@@ -1397,7 +1343,6 @@
     }
   }
 
-  // Tarjetas a los lados (no activas)
   &:not(.active) {
     h4 {
       font-size: 0.9rem;
@@ -1441,7 +1386,6 @@
     margin: 0;
   }
 
-  // Ajustes responsivos
   @media (max-width: 768px) {
     width: 160px;
     padding: 1rem 0.75rem;
@@ -1515,7 +1459,6 @@
   }
 }
 
-// Botones del carrusel (sobrescribir estilos anteriores)
 .svc-btn {
   position: relative !important;
   top: auto !important;
@@ -1547,8 +1490,7 @@
   }
 }
 
-// Dots del carrusel
-.carousel-dots {
+.services-carousel-wrapper .carousel-dots {
   display: flex;
   justify-content: center;
   gap: 10px;
