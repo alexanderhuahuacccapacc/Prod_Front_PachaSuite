@@ -128,25 +128,6 @@
 </section>
 
 <!-- ============================================================
-     FEATURES
-     ============================================================ -->
-<section class="features-section">
-  <div class="container">
-    <div class="features-grid">
-      @for (f of features; track f.icon) {
-        <div class="feature-item">
-          <div class="feature-icon">
-            <i class="fa-solid {{ f.icon }}"></i>
-          </div>
-          <h6>{{ f.title }}</h6>
-          <p>{{ f.desc }}</p>
-        </div>
-      }
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================
      HABITACIONES
      ============================================================ -->
 <section id="habitaciones" class="rooms-section section-padding">
@@ -157,53 +138,66 @@
       <p class="section-desc">Cada suite cuidadosamente diseñada para brindarte el máximo confort a más de 3800 m s.n.m.</p>
     </div>
 
-    <div class="rooms-grid">
-      @for (hab of habitaciones; track hab.id) {
-        <div class="room-card">
-          <div class="room-img-wrap">
-            <img [src]="hab.imagenes[0]" [alt]="hab.nombre" loading="lazy">
-            <span class="room-badge">{{ hab.tipo | titlecase }}</span>
-          </div>
-          <div class="room-body">
-            <div class="room-meta">
-              <span><i class="fa-solid fa-maximize me-1"></i>{{ hab.sizeM2 }} m²</span>
-              <span><i class="fa-solid fa-bed me-1"></i>{{ hab.camas }}</span>
-              <span><i class="fa-solid fa-user-group me-1"></i>{{ hab.capacidad }} pers.</span>
+    <!-- Carrusel de habitaciones -->
+    <div class="rooms-carousel-wrapper">
+      <button class="carousel-btn prev" (click)="prevSlide()">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+
+      <div class="rooms-carousel" #carouselRef>
+        @for (hab of habitaciones; track hab.id) {
+          <div class="room-card">
+            <div class="room-img-wrap">
+              <img [src]="hab.imagenes[0]" [alt]="hab.nombre" loading="lazy">
+              <span class="room-badge">{{ hab.tipo | titlecase }}</span>
             </div>
-            <h4 class="room-name">{{ hab.nombre }}</h4>
-            <div class="room-amenities">
-              @if (hab.amenidades?.internet) {
-                <span class="amenity-tag"><i class="fa-solid fa-wifi"></i> WiFi</span>
-              }
-              @if (hab.amenidades?.cable) {
-                <span class="amenity-tag"><i class="fa-solid fa-tv"></i> TV Cable</span>
-              }
-              @if (hab.amenidades?.minibar) {
-                <span class="amenity-tag"><i class="fa-solid fa-martini-glass-citrus"></i> Minibar</span>
-              }
-              @if (hab.amenidades?.jacuzzi) {
-                <span class="amenity-tag"><i class="fa-solid fa-bath"></i> Jacuzzi</span>
-              }
-            </div>
-            <div class="room-footer">
-              <div class="room-price">
+            <div class="room-body">
+              <div class="room-meta">
+                <span><i class="fa-solid fa-maximize me-1"></i>{{ hab.sizeM2 }} m²</span>
+                <span><i class="fa-solid fa-bed me-1"></i>{{ hab.camas }}</span>
+                <span><i class="fa-solid fa-user-group me-1"></i>{{ hab.capacidad }} pers.</span>
+              </div>
+              <h4 class="room-name">{{ hab.nombre }}</h4>
+              <div class="room-amenities">
+                @if (hab.amenidades?.internet) {
+                  <span class="amenity-tag"><i class="fa-solid fa-wifi"></i> WiFi</span>
+                }
+                @if (hab.amenidades?.cable) {
+                  <span class="amenity-tag"><i class="fa-solid fa-tv"></i> TV Cable</span>
+                }
+                @if (hab.amenidades?.minibar) {
+                  <span class="amenity-tag"><i class="fa-solid fa-martini-glass-citrus"></i> Minibar</span>
+                }
+                @if (hab.amenidades?.jacuzzi) {
+                  <span class="amenity-tag"><i class="fa-solid fa-bath"></i> Jacuzzi</span>
+                }
+              </div>
+              <div class="room-price-only">
                 <span class="price-label">Desde</span>
                 <span class="price-val">S/ {{ hab.precioBase }}</span>
                 <span class="price-per">/noche</span>
               </div>
-              <button class="btn-reservar" (click)="reservarHabitacion(hab)">
-                Reservar <i class="fa-solid fa-arrow-right ms-1"></i>
-              </button>
             </div>
           </div>
-        </div>
+        }
+      </div>
+
+      <button class="carousel-btn next" (click)="nextSlide()">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+
+    <!-- Dots indicadores -->
+    <div class="carousel-dots">
+      @for (hab of habitaciones; track hab.id; let i = $index) {
+        <button class="dot" [class.active]="i === currentSlide()" (click)="goToSlide(i)"></button>
       }
     </div>
   </div>
 </section>
 
 <!-- ============================================================
-     SERVICIOS (carrusel)
+     SERVICIOS (Carrusel 3D Rotativo - NUEVO)
      ============================================================ -->
 <section id="servicios" class="services-section section-padding">
   <div class="container">
@@ -213,15 +207,47 @@
       <p class="section-desc">Cada detalle pensado para convertir tu estancia en una experiencia memorable.</p>
     </div>
 
-    <div class="services-track">
-      @for (s of services; track s.icon) {
-        <div class="service-card">
-          <div class="service-icon">
-            <i class="fa-solid {{ s.icon }}"></i>
+    <div class="services-carousel-wrapper"
+         (mouseenter)="servicePaused = true"
+         (mouseleave)="servicePaused = false">
+
+      <button class="carousel-btn prev svc-btn" (click)="prevService()">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+
+      <div class="services-track">
+        @for (s of services; track s.icon; let i = $index) {
+          <div class="service-card"
+               [class.active]="i === currentServiceIndex()"
+               [class.adjacent]="i === (currentServiceIndex() + 1) % services.length ||
+                              i === (currentServiceIndex() - 1 + services.length) % services.length"
+               (click)="goToService(i)">
+            <div class="service-icon">
+              <i class="fa-solid {{ s.icon }}"></i>
+            </div>
+            <h4>{{ s.title }}</h4>
+            <p>{{ s.desc }}</p>
           </div>
-          <h4>{{ s.title }}</h4>
-          <p>{{ s.desc }}</p>
-        </div>
+        }
+      </div>
+
+      <button class="carousel-btn next svc-btn" (click)="nextService()">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+
+    <div class="carousel-dots mt-4">
+      @for (s of services; track s.icon; let i = $index) {
+        <button class="dot"
+                [class.active]="i === currentServiceIndex()"
+                (click)="goToService(i)"></button>
+      }
+    </div>
+
+    <!-- Dots indicadores -->
+    <div class="carousel-dots mt-4">
+      @for (s of services; track s.icon; let i = $index) {
+        <button class="dot" [class.active]="i === currentServiceIndex()" (click)="goToService(i)"></button>
       }
     </div>
   </div>

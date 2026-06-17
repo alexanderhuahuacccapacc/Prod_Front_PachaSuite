@@ -1196,3 +1196,382 @@
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+// ── CARRUSEL DE HABITACIONES ─────────────────────────────────
+.rooms-carousel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.rooms-carousel {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding: 12px 4px 16px;
+  flex: 1;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: white;
+  box-shadow: 0 4px 16px rgba(62,38,21,0.15);
+  color: var(--color-primary);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+
+  &:hover {
+    background: var(--color-primary);
+    color: white;
+    transform: translateY(-50%) scale(1.08);
+  }
+
+  &.prev { left: -22px; }
+  &.next { right: -22px; }
+
+  @media (max-width: 576px) {
+    width: 36px;
+    height: 36px;
+    font-size: 0.85rem;
+    &.prev { left: -14px; }
+    &.next { right: -14px; }
+  }
+}
+
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 1.25rem;
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: none;
+    background: var(--color-border, #E8DFD0);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s, width 0.2s;
+    padding: 0;
+
+    &.active {
+      background: var(--color-primary);
+      width: 24px;
+      border-radius: 4px;
+    }
+  }
+}
+
+.room-card {
+  flex: 0 0 320px;
+  scroll-snap-align: start;
+  background: white;
+  border-radius: var(--radius-lg, 16px);
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(62, 38, 21, 0.08);
+  transition: transform 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(62, 38, 21, 0.14);
+  }
+
+  @media (max-width: 576px) {
+    flex: 0 0 280px;
+  }
+}
+
+.room-price-only {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-top: 1rem;
+
+  .price-label { font-size: 0.75rem; color: var(--color-text-light); }
+  .price-val   { font-size: 1.25rem; font-weight: 700; color: var(--color-primary); }
+  .price-per   { font-size: 0.75rem; color: var(--color-text-light); }
+}
+// ── SERVICIOS (Carrusel 3D) ──────────────────────────────────
+.services-section {
+  background: var(--color-beige, #F0E9DD);
+  overflow: hidden; // Para evitar desbordes
+}
+
+.services-carousel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 3rem 0;
+  perspective: 1200px; // Profundidad 3D
+  min-height: 380px;
+
+  @media (max-width: 768px) {
+    min-height: 320px;
+    padding: 2rem 0;
+  }
+
+  @media (max-width: 576px) {
+    min-height: 280px;
+    padding: 1.5rem 0;
+  }
+}
+
+.services-carousel-3d {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0 20px;
+}
+
+.services-track-3d {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 900px;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.service-card-3d {
+  position: absolute;
+  width: 200px;
+  padding: 1.5rem 1rem;
+  background: white;
+  border-radius: var(--radius-lg, 16px);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  backface-visibility: hidden;
+  box-shadow: 0 4px 16px rgba(62, 38, 21, 0.08);
+  will-change: transform, opacity;
+
+  // Estado activo (centro)
+  &.active {
+    width: 240px;
+    padding: 2rem 1.5rem;
+    z-index: 10;
+    box-shadow: 0 20px 60px rgba(194, 65, 12, 0.25);
+    border: 1.5px solid rgba(194, 65, 12, 0.2);
+
+    .service-icon {
+      width: 68px;
+      height: 68px;
+      font-size: 1.8rem;
+      background: linear-gradient(135deg, rgba(194,65,12,0.15), rgba(92,58,33,0.1));
+      box-shadow: 0 4px 20px rgba(194,65,12,0.2);
+    }
+
+    h4 {
+      font-size: 1.1rem;
+      color: var(--color-primary);
+      margin-top: 0.75rem;
+    }
+
+    p {
+      font-size: 0.875rem;
+      opacity: 1;
+      max-height: 80px;
+      margin-top: 0.5rem;
+    }
+  }
+
+  // Tarjetas a los lados (no activas)
+  &:not(.active) {
+    h4 {
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+    p {
+      font-size: 0;
+      opacity: 0;
+      max-height: 0;
+      margin: 0;
+      overflow: hidden;
+    }
+  }
+
+  .service-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(194,65,12,0.10), rgba(92,58,33,0.06));
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin: 0 auto;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  h4 {
+    font-family: var(--font-display), serif;
+    font-weight: 700;
+    color: var(--color-secondary-dark);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 0;
+  }
+
+  p {
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 0;
+  }
+
+  // Ajustes responsivos
+  @media (max-width: 768px) {
+    width: 160px;
+    padding: 1rem 0.75rem;
+
+    &.active {
+      width: 190px;
+      padding: 1.5rem 1rem;
+
+      .service-icon {
+        width: 54px;
+        height: 54px;
+        font-size: 1.4rem;
+      }
+
+      h4 {
+        font-size: 0.95rem;
+      }
+
+      p {
+        font-size: 0.75rem;
+      }
+    }
+
+    &:not(.active) {
+      h4 {
+        font-size: 0.75rem;
+      }
+    }
+
+    .service-icon {
+      width: 40px;
+      height: 40px;
+      font-size: 1.1rem;
+    }
+  }
+
+  @media (max-width: 576px) {
+    width: 130px;
+    padding: 0.75rem 0.5rem;
+
+    &.active {
+      width: 150px;
+      padding: 1.25rem 0.75rem;
+
+      .service-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 1.2rem;
+      }
+
+      h4 {
+        font-size: 0.85rem;
+      }
+
+      p {
+        font-size: 0.7rem;
+      }
+    }
+
+    &:not(.active) {
+      h4 {
+        font-size: 0.65rem;
+      }
+    }
+
+    .service-icon {
+      width: 34px;
+      height: 34px;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// Botones del carrusel (sobrescribir estilos anteriores)
+.svc-btn {
+  position: relative !important;
+  top: auto !important;
+  transform: none !important;
+  flex-shrink: 0;
+  z-index: 20;
+  width: 40px;
+  height: 40px;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 4px 16px rgba(62, 38, 21, 0.15);
+  color: var(--color-primary);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--color-primary);
+    color: white;
+    transform: scale(1.08) !important;
+    box-shadow: 0 4px 20px rgba(194, 65, 12, 0.3);
+  }
+
+  @media (max-width: 576px) {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+}
+
+// Dots del carrusel
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 1.5rem;
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(62, 38, 21, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+
+    &.active {
+      background: var(--color-primary);
+      width: 30px;
+      border-radius: 5px;
+    }
+
+    &:hover:not(.active) {
+      background: rgba(62, 38, 21, 0.4);
+    }
+  }
+}
