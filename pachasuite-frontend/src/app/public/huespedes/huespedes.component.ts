@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ReservaService } from '../../core/services/reserva.service';
 import { ExtraService } from '../../core/services/extra.service';
-import { HuespedForm } from '../../core/models/models';
+import { HuespedForm, AcompananteForm } from '../../core/models/models';
 import { ReCaptchaV3Service } from 'ng-recaptcha';
+import {AcompananteFormComponent} from './acompanante-form/acompanante-form.component';
 
 @Component({
   selector: 'app-huespedes',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, AcompananteFormComponent],
   providers: [ReCaptchaV3Service],
   templateUrl: './huespedes.component.html',
   styleUrls: ['./huespedes.component.scss']
@@ -26,6 +27,7 @@ export class HuespedesComponent implements OnInit {
   ];
 
   huespedes      = signal<HuespedForm[]>([]);
+  acompanantes = signal<AcompananteForm[]>([]);
   activeGuest    = signal(0);
   showModal      = signal(false);
   codigoEnviado  = signal(false);
@@ -69,13 +71,23 @@ export class HuespedesComponent implements OnInit {
       return;
     }
     const adultos = this.busqueda()?.adultos ?? 1;
-    const forms: HuespedForm[] = Array.from({ length: adultos }, (_, i) => ({
-      nombre: '', apellido: '', tipo: i === 0 ? 'titular' : 'acompanante',
+
+    // Titular
+    const titular: HuespedForm = {
+      nombre: '', apellido: '', tipo: 'titular',
       documentoTipo: 'DNI', documento: '', edad: null,
       sexo: '', nacionalidad: 'Peruana', email: '',
       codigoPais: '+51', telefono: '', peticionEspecial: ''
+    };
+    this.huespedes.set([titular]);
+
+    // Acompañantes
+    const acomps: AcompananteForm[] = Array.from({ length: adultos - 1 }, () => ({
+      nombre: '', apellido: '', documentoTipo: 'DNI',
+      documento: '', edad: null, sexo: '',
+      nacionalidad: 'Peruana', peticionEspecial: ''
     }));
-    this.huespedes.set(forms);
+    this.acompanantes.set(acomps);
   }
 
   syncEmail(email: string): void {
@@ -151,6 +163,11 @@ export class HuespedesComponent implements OnInit {
       document.getElementById(`digit-${idx + 1}`)?.focus();
     }
   }
+  actualizarAcompanante(index: number, updated: AcompananteForm): void {
+    const arr = [...this.acompanantes()];
+    arr[index] = updated;
+    this.acompanantes.set(arr);
+  }
 
   onKeydown(event: KeyboardEvent, idx: number): void {
     if (event.key === 'Backspace' && !this.digits()[idx] && idx > 0) {
@@ -158,7 +175,6 @@ export class HuespedesComponent implements OnInit {
     }
   }
 
-  // ✅ Confirmar reserva - solo email
   confirmarReserva(): void {
     const codigo = this.digits().join('');
     if (codigo.length !== 6) {
@@ -170,20 +186,18 @@ export class HuespedesComponent implements OnInit {
     this.codigoError.set('');
 
     const state = this.reservaService.wizardState();
-    const emailTitular = state.emailTitular;
 
     this.reservaService.crearReserva({
-      checkIn:             state.busqueda!.checkIn,
-      checkOut:            state.busqueda!.checkOut,
-      adultos:             state.busqueda!.adultos,
-      ninos:               state.busqueda!.ninos,
-      habitacionId:        state.habitacion!.id,
-      huespedes:           state.huespedes,
-      extrasCodigos:       state.extrasSeleccionados,
-      codigoVerificacion:  codigo,
-      // ❌ Ya no se usa contactoVerificacion
-      emailTitular:        emailTitular
-    } as any).subscribe({
+      checkIn:            state.busqueda!.checkIn,
+      checkOut:           state.busqueda!.checkOut,
+      adultos:            state.busqueda!.adultos,
+      ninos:              state.busqueda!.ninos,
+      habitacionId:       state.habitacion!.id,
+      titular:            this.huespedes()[0],    // ← titular
+      acompanantes:       this.acompanantes(),    // ← acompañantes
+      extrasCodigos:      state.extrasSeleccionados,
+      codigoVerificacion: codigo
+    }).subscribe({
       next: res => {
         this.reservaService.resetWizard();
         this.router.navigate(['/confirmacion', res.codigo]);

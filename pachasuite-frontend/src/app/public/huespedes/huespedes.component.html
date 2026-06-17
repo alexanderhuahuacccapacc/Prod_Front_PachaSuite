@@ -26,41 +26,42 @@
       <div class="col-lg-8">
         <h2 class="section-heading">Datos de los huéspedes</h2>
 
-        @for (h of huespedes(); track $index) {
-          <div class="guest-card mb-3" [class.active]="activeGuest() === $index">
+        <!-- ======== TITULAR ======== -->
+        @if (huespedes().length > 0) {
+          <div class="guest-card mb-3" [class.active]="activeGuest() === 0">
 
-            <!-- Header colapsable -->
-            <div class="guest-card-header" (click)="activeGuest.set($index)">
-              <div class="guest-avatar">{{ getInitial($index) }}</div>
+            <div class="guest-card-header" (click)="activeGuest.set(0)">
+              <div class="guest-avatar titular">{{ getInitial(0) }}</div>
               <div class="guest-label">
-                Huésped {{ $index + 1 }} – {{ $index === 0 ? 'Titular' : 'Acompañante' }}
-                <span>{{ h.nombre || 'Sin completar' }} {{ h.apellido }}</span>
+                <strong>Titular</strong>
+                <span>{{ huespedes()[0].nombre || 'Sin completar' }} {{ huespedes()[0].apellido }}</span>
               </div>
               <i class="fa-solid ms-auto chevron-icon"
-                 [class.fa-chevron-up]="activeGuest() === $index"
-                 [class.fa-chevron-down]="activeGuest() !== $index"></i>
+                 [class.fa-chevron-up]="activeGuest() === 0"
+                 [class.fa-chevron-down]="activeGuest() !== 0"></i>
             </div>
 
-            <!-- Formulario expandible -->
-            @if (activeGuest() === $index) {
+            @if (activeGuest() === 0) {
               <div class="guest-form-body">
                 <div class="row g-3">
+
                   <div class="col-sm-6">
                     <div class="form-field">
                       <label>Nombre *</label>
-                      <input type="text" [(ngModel)]="h.nombre" placeholder="Ej: Juan">
+                      <input type="text" [(ngModel)]="huespedes()[0].nombre" placeholder="Ej: Juan">
                     </div>
                   </div>
                   <div class="col-sm-6">
                     <div class="form-field">
                       <label>Apellido *</label>
-                      <input type="text" [(ngModel)]="h.apellido" placeholder="Ej: Quispe">
+                      <input type="text" [(ngModel)]="huespedes()[0].apellido" placeholder="Ej: Quispe">
                     </div>
                   </div>
+
                   <div class="col-sm-4">
                     <div class="form-field">
                       <label>Tipo de documento</label>
-                      <select [(ngModel)]="h.documentoTipo">
+                      <select [(ngModel)]="huespedes()[0].documentoTipo">
                         <option value="DNI">DNI</option>
                         <option value="PASAPORTE">Pasaporte</option>
                         <option value="CE">C.E.</option>
@@ -69,20 +70,21 @@
                   </div>
                   <div class="col-sm-8">
                     <div class="form-field">
-                      <label>Número de documento</label>
-                      <input type="text" [(ngModel)]="h.documento">
+                      <label>Número de documento *</label>
+                      <input type="text" [(ngModel)]="huespedes()[0].documento">
                     </div>
                   </div>
+
                   <div class="col-sm-4">
                     <div class="form-field">
                       <label>Edad</label>
-                      <input type="number" [(ngModel)]="h.edad" min="0" max="120">
+                      <input type="number" [(ngModel)]="huespedes()[0].edad" min="18" max="120">
                     </div>
                   </div>
                   <div class="col-sm-4">
                     <div class="form-field">
                       <label>Sexo</label>
-                      <select [(ngModel)]="h.sexo">
+                      <select [(ngModel)]="huespedes()[0].sexo">
                         <option value="">—</option>
                         <option value="M">Masculino</option>
                         <option value="F">Femenino</option>
@@ -92,40 +94,49 @@
                   <div class="col-sm-4">
                     <div class="form-field">
                       <label>Nacionalidad</label>
-                      <input type="text" [(ngModel)]="h.nacionalidad" placeholder="Peruana">
+                      <input type="text" [(ngModel)]="huespedes()[0].nacionalidad" placeholder="Peruana">
                     </div>
                   </div>
 
-                  <!-- Email y teléfono solo para titular -->
-                  @if ($index === 0) {
-                    <div class="col-sm-8">
-                      <div class="form-field">
-                        <label>Email *</label>
-                        <input type="email" [(ngModel)]="h.email"
-                               (ngModelChange)="syncEmail($event)"
-                               placeholder="correo@ejemplo.com">
-                      </div>
+                  <div class="col-sm-8">
+                    <div class="form-field">
+                      <label>Email *</label>
+                      <input type="email" [(ngModel)]="huespedes()[0].email"
+                             (ngModelChange)="syncEmail($event)"
+                             placeholder="correo@ejemplo.com">
                     </div>
-                    <div class="col-sm-4">
-                      <div class="form-field">
-                        <label>Teléfono</label>
-                        <input type="tel" [(ngModel)]="h.telefono" placeholder="+51 999 000 000">
-                      </div>
+                  </div>
+                  <div class="col-sm-4">
+                    <div class="form-field">
+                      <label>Teléfono</label>
+                      <input type="tel" [(ngModel)]="huespedes()[0].telefono" placeholder="+51 999 000 000">
                     </div>
-                  }
+                  </div>
 
                   <div class="col-12">
                     <div class="form-field">
                       <label>Petición especial</label>
-                      <textarea [(ngModel)]="h.peticionEspecial" rows="2"
+                      <textarea [(ngModel)]="huespedes()[0].peticionEspecial" rows="2"
                                 placeholder="Cama extra, vista, dieta especial…"></textarea>
                     </div>
                   </div>
+
                 </div>
               </div>
             }
 
           </div>
+        }
+
+        <!-- ======== ACOMPAÑANTES ======== -->
+        @for (h of acompanantes(); track $index) {
+          <app-acompanante-form
+            [acompanante]="h"
+            [index]="$index + 1"
+            [expanded]="activeGuest() === $index + 1"
+            (toggle)="activeGuest.set(activeGuest() === $index + 1 ? -1 : $index + 1)"
+            (acompananteChange)="actualizarAcompanante($index, $event)">
+          </app-acompanante-form>
         }
 
         @if (formError()) {
@@ -161,7 +172,7 @@
           </div>
           <div class="resumen-row">
             <span>Huéspedes</span>
-            <strong>{{ busqueda()?.adultos }} adultos</strong>
+            <strong>{{ busqueda()?.adultos }} adulto(s)</strong>
           </div>
 
           @for (e of extrasInfo(); track e.codigo) {
@@ -193,7 +204,7 @@
   </div>
 </div>
 
-<!-- MODAL VERIFICACIÓN - SOLO EMAIL -->
+<!-- MODAL VERIFICACIÓN -->
 @if (showModal()) {
   <div class="modal-overlay" (click)="cerrarModal()">
     <div class="modal-box" (click)="$event.stopPropagation()">
@@ -206,7 +217,6 @@
         <p>Te enviaremos un código de 6 dígitos a tu correo</p>
       </div>
 
-      <!-- Información del email -->
       @if (!codigoEnviado()) {
         <p class="contacto-info">
           <i class="fa-solid fa-envelope me-1"></i>
@@ -229,7 +239,6 @@
         </p>
       }
 
-      <!-- 6 inputs del código -->
       <div class="code-inputs">
         @for (i of [0,1,2,3,4,5]; track i) {
           <input type="text" maxlength="1"

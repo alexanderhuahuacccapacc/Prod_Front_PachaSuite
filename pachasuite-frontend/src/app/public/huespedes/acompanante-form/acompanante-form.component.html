@@ -1,0 +1,117 @@
+<!-- Tarjeta colapsable de acompañante -->
+<div class="guest-card mb-3" [class.active]="expanded">
+
+  <!-- Header -->
+  <div class="guest-card-header" (click)="toggle.emit()">
+    <div class="guest-avatar secondary">{{ getInitial() }}</div>
+    <div class="guest-label">
+      Acomp. {{ index }}
+      <span>{{ acompanante.nombre || 'Sin completar' }} {{ acompanante.apellido }}</span>
+    </div>
+    <i class="fa-solid ms-auto chevron-icon"
+       [class.fa-chevron-up]="expanded"
+       [class.fa-chevron-down]="!expanded"></i>
+  </div>
+
+  <!-- Formulario expandible -->
+  @if (expanded) {
+    <div class="guest-form-body">
+      <div class="row g-3">
+
+        <!-- Nombre -->
+        <div class="col-sm-6">
+          <div class="form-field">
+            <label>Nombre *</label>
+            <input type="text"
+                   [value]="acompanante.nombre"
+                   (input)="update('nombre', $any($event.target).value)"
+                   placeholder="Ej: Kevin">
+          </div>
+        </div>
+
+        <!-- Apellido -->
+        <div class="col-sm-6">
+          <div class="form-field">
+            <label>Apellido *</label>
+            <input type="text"
+                   [value]="acompanante.apellido"
+                   (input)="update('apellido', $any($event.target).value)"
+                   placeholder="Ej: Quispe">
+          </div>
+        </div>
+
+        <!-- Tipo documento -->
+        <div class="col-sm-4">
+          <div class="form-field">
+            <label>Documento</label>
+            <select [value]="acompanante.documentoTipo"
+                    (change)="update('documentoTipo', $any($event.target).value)">
+              <option value="DNI">DNI</option>
+              <option value="PASAPORTE">Pasaporte</option>
+              <option value="CE">C.E.</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Número documento -->
+        <div class="col-sm-8">
+          <div class="form-field">
+            <label>Número</label>
+            <input type="text"
+                   [value]="acompanante.documento"
+                   (input)="update('documento', $any($event.target).value)"
+                   placeholder="12345678">
+          </div>
+        </div>
+
+        <!-- Edad -->
+        <div class="col-sm-4">
+          <div class="form-field">
+            <label>Edad</label>
+            <input type="number"
+                   [value]="acompanante.edad ?? ''"
+                   (input)="update('edad', +$any($event.target).value || null)"
+                   min="0" max="120">
+          </div>
+        </div>
+
+        <!-- Sexo -->
+        <div class="col-sm-4">
+          <div class="form-field">
+            <label>Sexo</label>
+            <select [value]="acompanante.sexo"
+                    (change)="update('sexo', $any($event.target).value)">
+              <option value="">—</option>
+              <option value="M">Masculino</option>
+              <option value="F">Femenino</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Nacionalidad -->
+        <div class="col-sm-4">
+          <div class="form-field">
+            <label>Nacionalidad</label>
+            <input type="text"
+                   [value]="acompanante.nacionalidad"
+                   (input)="update('nacionalidad', $any($event.target).value)"
+                   placeholder="Peruana">
+          </div>
+        </div>
+
+        <!-- Petición especial -->
+        <div class="col-12">
+          <div class="form-field">
+            <label>Petición especial <span class="optional">(opcional)</span></label>
+            <textarea rows="2"
+                      [value]="acompanante.peticionEspecial || ''"
+                      (input)="update('peticionEspecial', $any($event.target).value)"
+                      placeholder="Cama extra, dieta especial, vista…"></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  }
+
+</div>

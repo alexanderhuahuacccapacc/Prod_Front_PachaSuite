@@ -1,0 +1,14 @@
+// Hereda .guest-card, .guest-card-header, .guest-form-body del padre (huespedes.component.scss)
+// Solo añadimos el diferenciador visual del avatar de acompañante
+
+.guest-avatar.secondary {
+  background: linear-gradient(135deg, #c0392b, #e74c3c);
+  color: #fff;
+}
+
+.optional {
+  font-size: 0.75rem;
+  color: #999;
+  font-weight: 400;
+  margin-left: 4px;
+}

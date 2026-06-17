@@ -45,6 +45,19 @@ export interface HuespedForm {
   telefono: string;
   peticionEspecial: string;
 }
+export interface AcompananteForm {
+  nombre: string;
+  apellido: string;
+  documentoTipo?: string;
+  documento?: string;
+  edad?: number | null;
+  sexo?: string;
+  nacionalidad?: string;
+  email?: string;
+  codigoPais?: string;
+  telefono?: string;
+  peticionEspecial?: string;
+}
 
 export interface MensajeContacto {
   id: number;
@@ -67,16 +80,27 @@ export interface ContactForm {
 }
 
 // ── Reserva Request (sin contactoVerificacion, solo email) ──
+//export interface ReservaRequest {
+  //checkIn: string;
+  //checkOut: string;
+  //adultos: number;
+  //ninos: number;
+  //habitacionId: number;
+  //huespedes: HuespedForm[];
+  //extrasCodigos: string[];
+  //codigoVerificacion: string;
+  //emailTitular: string;
+//}
 export interface ReservaRequest {
   checkIn: string;
   checkOut: string;
   adultos: number;
   ninos: number;
   habitacionId: number;
-  huespedes: HuespedForm[];
+  titular: HuespedForm;
+  acompanantes: AcompananteForm[];
   extrasCodigos: string[];
   codigoVerificacion: string;
-  emailTitular: string;
 }
 
 // ── Verificación (solo EMAIL) ────────────────────────────────
@@ -137,5 +161,6 @@ export interface ReservaWizardState {
   habitacion: Habitacion | null;
   extrasSeleccionados: string[];
   huespedes: HuespedForm[];
+  acompanantes: AcompananteForm[];
   emailTitular: string;
 }

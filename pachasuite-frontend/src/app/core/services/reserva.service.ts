@@ -33,6 +33,7 @@ export class ReservaService {
   captchaToken = signal('');
 
   wizardState = signal<ReservaWizardState>({
+    acompanantes: [],
     busqueda: null,
     habitacion: null,
     extrasSeleccionados: [],
@@ -118,6 +119,7 @@ export class ReservaService {
 
   resetWizard(): void {
     this.wizardState.set({
+      acompanantes: [],
       busqueda: null, habitacion: null,
       extrasSeleccionados: [], huespedes: [],
       emailTitular: ''
