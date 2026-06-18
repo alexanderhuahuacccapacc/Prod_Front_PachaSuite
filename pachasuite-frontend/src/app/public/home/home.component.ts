@@ -237,9 +237,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (Math.abs(offset) > 2) {
       return 'translateX(0px) translateZ(-500px) rotateY(0deg) scale(0.5)';
     }
-    const x       = offset * 225;
+    const x       = offset * 260;
     const z       = Math.abs(offset) * -180;
-    const rotateY = offset * -50;
+    const rotateY = offset * -35;
     const scale   = 1 - Math.abs(offset) * 0.15;
     return `translateX(${x}px) translateZ(${z}px) rotateY(${rotateY}deg) scale(${scale})`;
   }
