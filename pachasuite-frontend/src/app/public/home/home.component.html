@@ -187,7 +187,7 @@
       </button>
     </div>
 
-    <!-- Dots indicadores -->
+    <!-- Dots habitaciones -->
     <div class="carousel-dots">
       @for (hab of habitaciones; track hab.id; let i = $index) {
         <button class="dot" [class.active]="i === currentSlide()" (click)="goToSlide(i)"></button>
@@ -197,7 +197,7 @@
 </section>
 
 <!-- ============================================================
-     SERVICIOS (Carrusel 3D Rotativo - NUEVO)
+     SERVICIOS (Carrusel 3D)
      ============================================================ -->
 <section id="servicios" class="services-section section-padding">
   <div class="container">
@@ -211,7 +211,7 @@
          (mouseenter)="servicePaused = true"
          (mouseleave)="servicePaused = false">
 
-      <button class="carousel-btn prev svc-btn" (click)="prevService()">
+      <button class="svc-btn" (click)="prevService()">
         <i class="fa-solid fa-chevron-left"></i>
       </button>
 
@@ -235,23 +235,17 @@
         </div>
       </div>
 
-      <button class="carousel-btn next svc-btn" (click)="nextService()">
+      <button class="svc-btn" (click)="nextService()">
         <i class="fa-solid fa-chevron-right"></i>
       </button>
     </div>
 
+    <!-- Dots servicios — solo UNO -->
     <div class="carousel-dots mt-4">
       @for (s of services; track s.icon; let i = $index) {
         <button class="dot"
                 [class.active]="i === currentServiceIndex()"
                 (click)="goToService(i)"></button>
-      }
-    </div>
-
-    <!-- Dots indicadores -->
-    <div class="carousel-dots mt-4">
-      @for (s of services; track s.icon; let i = $index) {
-        <button class="dot" [class.active]="i === currentServiceIndex()" (click)="goToService(i)"></button>
       }
     </div>
   </div>
