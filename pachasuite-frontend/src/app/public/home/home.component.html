@@ -76,25 +76,26 @@
 
       <div class="booking-grid">
         <div class="form-group">
-          <label><i class="fa-regular fa-calendar me-1"></i>Check-in</label>
-          <input type="date" [(ngModel)]="form.checkIn" [min]="today">
+          <label for="checkIn"><i class="fa-regular fa-calendar me-1"></i>Check-in</label>
+          <input id="checkIn" type="date" [(ngModel)]="form.checkIn" [min]="today">
         </div>
         <div class="form-group">
-          <label><i class="fa-regular fa-calendar me-1"></i>Check-out</label>
-          <input type="date" [(ngModel)]="form.checkOut" [min]="form.checkIn || today">
+          <label for="checkOut"><i class="fa-regular fa-calendar me-1"></i>Check-out</label>
+          <input id="checkOut" type="date" [(ngModel)]="form.checkOut" [min]="form.checkIn || today">
         </div>
         <div class="form-group">
-          <label><i class="fa-solid fa-user me-1"></i>Adultos</label>
-          <select [(ngModel)]="form.adultos">
+          <label for="selAdultos"><i class="fa-solid fa-user me-1"></i>Adultos</label>
+          <select id="selAdultos" [(ngModel)]="form.adultos">
             <option [value]="1">1 adulto</option>
             <option [value]="2">2 adultos</option>
             <option [value]="3">3 adultos</option>
             <option [value]="4">4 adultos</option>
           </select>
         </div>
+
         <div class="form-group">
-          <label><i class="fa-solid fa-child me-1"></i>Niños</label>
-          <select [(ngModel)]="form.ninos">
+          <label for="selNinos"><i class="fa-solid fa-child me-1"></i>Niños</label>
+          <select id="selNinos" [(ngModel)]="form.ninos">
             <option [value]="0">Sin niños</option>
             <option [value]="1">1 niño</option>
             <option [value]="2">2 niños</option>
