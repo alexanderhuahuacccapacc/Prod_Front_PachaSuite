@@ -1029,6 +1029,33 @@
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+// ── SERVICIOS 3D - OVERFLOW FIX ─────────────────────────────
+.services-carousel-3d {
+  overflow: hidden !important; // Previene scroll lateral
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+}
+
+.services-track-3d {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transform-style: preserve-3d;
+  overflow: hidden; // Asegura que nada se desborde
+}
+
+// Cards que se ocultan completamente en ultra-compacto
+.service-card-3d {
+  // ... (mantén el resto igual)
+
+  // Sobrescribir para ultra-compacto cuando se usa display:none
+  &[style*="display: none"] {
+    // No necesita estilos extra, display:none ya los remueve del flujo
+  }
+}
 
 // ── UTILS ────────────────────────────────────────────────────
 .mt-2 { margin-top: 0.5rem; }

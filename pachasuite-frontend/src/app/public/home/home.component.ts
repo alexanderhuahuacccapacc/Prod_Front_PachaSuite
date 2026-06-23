@@ -93,6 +93,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.scrolled.set(window.scrollY > 40);
   }
 
+  // Recalcula el transform 3D de las cards de servicios al cambiar tamaño de pantalla
+  @HostListener('window:resize')
+  onResize(): void {
+    this.currentServiceIndex.set(this.currentServiceIndex());
+  }
+
   toggleMenu(): void {
     this.menuOpen = !this.menuOpen;
     document.body.style.overflow = this.menuOpen ? 'hidden' : '';
@@ -227,14 +233,64 @@ export class HomeComponent implements OnInit, OnDestroy {
     return Math.abs(this.getServiceOffset(index));
   }
 
-  /** Transform CSS 3D según el offset */
+  /** Detecta viewport muy pequeño (<= 504px): aquí solo se muestra la card activa */
+  isUltraCompactViewport(): boolean {
+    return typeof window !== 'undefined' && window.innerWidth <= 504;
+  }
+
+  /** Detecta viewport extra pequeño (<= 420px) */
+  private isExtraSmallMobileViewport(): boolean {
+    return typeof window !== 'undefined' && window.innerWidth <= 420;
+  }
+
+  /** Detecta viewport móvil pequeño (<= 576px) */
+  private isSmallMobileViewport(): boolean {
+    return typeof window !== 'undefined' && window.innerWidth <= 576;
+  }
+
+  /** Detecta viewport móvil/tablet (<= 768px) */
+  private isMobileViewport(): boolean {
+    return typeof window !== 'undefined' && window.innerWidth <= 768;
+  }
+
+  /** Transform CSS 3D según el offset, adaptado al tamaño de pantalla */
   getCardTransform(offset: number): string {
     if (Math.abs(offset) > 2) {
       return 'translateX(0px) translateZ(-500px) rotateY(0deg) scale(0.5)';
     }
-    const x       = offset * 260;
-    const z       = Math.abs(offset) * -180;
-    const rotateY = offset * -35;
+
+    // Pantallas muy chicas: solo se ve la card activa, las demás se ocultan
+    // fuera del viewport (opacity 0 vía clase .hidden en el template)
+    if (this.isUltraCompactViewport()) {
+      if (offset === 0) {
+        return 'translateX(0px) translateZ(0px) rotateY(0deg) scale(1)';
+      }
+      const dir = offset > 0 ? 1 : -1;
+      return `translateX(${dir * 400}px) translateZ(-300px) rotateY(0deg) scale(0.5)`;
+    }
+
+    // Multiplicadores responsive: desktop por defecto, ajustados en breakpoints
+    let xStep = 260;
+    let zStep = 180;
+    let rotateYStep = 35;
+
+    if (this.isExtraSmallMobileViewport()) {
+      xStep = 70;
+      zStep = 60;
+      rotateYStep = 20;
+    } else if (this.isSmallMobileViewport()) {
+      xStep = 110;
+      zStep = 90;
+      rotateYStep = 25;
+    } else if (this.isMobileViewport()) {
+      xStep = 160;
+      zStep = 120;
+      rotateYStep = 30;
+    }
+
+    const x       = offset * xStep;
+    const z       = Math.abs(offset) * -zStep;
+    const rotateY = offset * -rotateYStep;
     const scale   = 1 - Math.abs(offset) * 0.15;
     return `translateX(${x}px) translateZ(${z}px) rotateY(${rotateY}deg) scale(${scale})`;
   }
@@ -261,4 +317,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   stopServiceCarousel(): void {
     if (this.serviceInterval) clearInterval(this.serviceInterval);
   }
+  // Añadir este método para determinar si una card debe ocultarse completamente
+  shouldHideCard(index: number): boolean {
+    if (!this.isUltraCompactViewport()) {
+      return this.absOffset(index) > 2;
+    }
+    // En ultra-compacto, solo mostrar la card activa
+    return this.absOffset(index) !== 0;
+  }
+
 }
