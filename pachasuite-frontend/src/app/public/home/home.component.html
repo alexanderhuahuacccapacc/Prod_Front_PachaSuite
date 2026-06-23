@@ -18,8 +18,10 @@
       </li>
     </ul>
 
-    <button class="navbar-toggler d-md-none" (click)="toggleMenu()">
-      <i class="fa-solid" [class.fa-bars]="!menuOpen" [class.fa-xmark]="menuOpen"></i>
+    <button class="navbar-toggler d-md-none" (click)="toggleMenu()"
+            [attr.aria-label]="menuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'"
+            [attr.aria-expanded]="menuOpen">
+      <i class="fa-solid" [class.fa-bars]="!menuOpen" [class.fa-xmark]="menuOpen" aria-hidden="true"></i>
     </button>
   </div>
 
@@ -141,8 +143,8 @@
 
     <!-- Carrusel de habitaciones -->
     <div class="rooms-carousel-wrapper">
-      <button class="carousel-btn prev" (click)="prevSlide()">
-        <i class="fa-solid fa-chevron-left"></i>
+      <button class="carousel-btn prev" (click)="prevSlide()" aria-label="Habitación anterior">
+        <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
       </button>
 
       <div class="rooms-carousel" #carouselRef>
@@ -183,15 +185,17 @@
         }
       </div>
 
-      <button class="carousel-btn next" (click)="nextSlide()">
-        <i class="fa-solid fa-chevron-right"></i>
+      <button class="carousel-btn next" (click)="nextSlide()" aria-label="Siguiente habitación">
+        <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
       </button>
     </div>
 
     <!-- Dots habitaciones -->
     <div class="carousel-dots">
       @for (hab of habitaciones; track hab.id; let i = $index) {
-        <button class="dot" [class.active]="i === currentSlide()" (click)="goToSlide(i)"></button>
+        <button class="dot" [class.active]="i === currentSlide()" (click)="goToSlide(i)"
+                [attr.aria-label]="'Ir a ' + hab.nombre"
+                [attr.aria-current]="i === currentSlide() ? 'true' : null"></button>
       }
     </div>
   </div>
@@ -212,8 +216,8 @@
          (mouseenter)="servicePaused = true"
          (mouseleave)="servicePaused = false">
 
-      <button class="svc-btn" (click)="prevService()">
-        <i class="fa-solid fa-chevron-left"></i>
+      <button class="svc-btn" (click)="prevService()" aria-label="Servicio anterior">
+        <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
       </button>
 
       <div class="services-carousel-3d">
@@ -237,8 +241,8 @@
         </div>
       </div>
 
-      <button class="svc-btn" (click)="nextService()">
-        <i class="fa-solid fa-chevron-right"></i>
+      <button class="svc-btn" (click)="nextService()" aria-label="Siguiente servicio">
+        <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
       </button>
     </div>
 
@@ -247,7 +251,9 @@
       @for (s of services; track s.icon; let i = $index) {
         <button class="dot"
                 [class.active]="i === currentServiceIndex()"
-                (click)="goToService(i)"></button>
+                (click)="goToService(i)"
+                [attr.aria-label]="'Ir a ' + s.title"
+                [attr.aria-current]="i === currentServiceIndex() ? 'true' : null"></button>
       }
     </div>
   </div>
@@ -414,8 +420,8 @@
 <!-- LIGHTBOX MODAL -->
 @if (lightboxImg()) {
   <div class="lightbox-backdrop" (click)="closeLightbox()">
-    <button class="lightbox-close" (click)="closeLightbox()">
-      <i class="fa-solid fa-xmark"></i>
+    <button class="lightbox-close" (click)="closeLightbox()" aria-label="Cerrar imagen">
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
     </button>
     <img [src]="lightboxImg()!.src" [alt]="lightboxImg()!.alt">
   </div>
