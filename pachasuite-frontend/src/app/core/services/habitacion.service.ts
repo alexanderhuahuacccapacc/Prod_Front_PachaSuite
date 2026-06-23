@@ -25,6 +25,12 @@ export class HabitacionService {
   findAll(): Observable<Habitacion[]> {
     return this.http.get<Habitacion[]>(`${environment.apiUrl}/admin/habitaciones`);
   }
+  // Listar todas las habitaciones (público, sin filtro de disponibilidad)
+  listarTodas(): Observable<Habitacion[]> {
+    return this.http
+      .get<Habitacion[]>(`${environment.apiUrl}/public/habitaciones`)
+      .pipe(catchError(err => throwError(() => err)));
+  }
 
   update(id: number, body: Partial<Habitacion>): Observable<Habitacion> {
     return this.http.put<Habitacion>(`${environment.apiUrl}/admin/habitaciones/${id}`, body);

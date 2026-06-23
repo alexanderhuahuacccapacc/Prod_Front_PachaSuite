@@ -80,7 +80,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const d2 = new Date(); d2.setDate(d2.getDate() + 2);
     this.form.checkIn  = d1.toISOString().split('T')[0];
     this.form.checkOut = d2.toISOString().split('T')[0];
-    this.cargarHabitaciones();
+    this.cargarHabitacionesDestacadas();
     this.startServiceCarousel();
   }
 
@@ -133,15 +133,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.router.navigate(['/reservar', hab.id]);
   }
 
-  cargarHabitaciones(): void {
-    if (!this.form.checkIn || !this.form.checkOut) return;
-    const params: BusquedaParams = {
-      checkIn: this.form.checkIn, checkOut: this.form.checkOut,
-      adultos: +this.form.adultos, ninos: +this.form.ninos
-    };
-    this.habitacionService.buscarDisponibles(params).subscribe({
-      next:  data  => { this.habitaciones = data; },
-      error: ()    => { this.habitaciones = this.getHabitacionesBackup(); }
+  cargarHabitacionesDestacadas(): void {
+    this.habitacionService.listarTodas().subscribe({
+      next:  data => { this.habitaciones = data; },
+      error: ()   => { this.habitaciones = this.getHabitacionesBackup(); }
     });
   }
 
