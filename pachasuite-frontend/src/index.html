@@ -6,9 +6,12 @@
   <title>Pacha Suite — Hotel Puno</title>
   <base href="/">
   <link rel="icon" type="image/x-icon" href="PACHASUITE.ico">
-  <!-- Preconnect a orígenes críticos: arrancan DNS/TLS en paralelo -->
-  <link rel="preconnect" href="https://prod-back-pachasuite.onrender.com">
-  <link rel="preconnect" href="https://czfxbrtdiiackpacflfm.supabase.co">
+  <!-- dns-prefetch: solo resuelve DNS, sin abrir TLS. Para orígenes que se usan
+       DESPUÉS del primer render (llamadas a la API una vez Angular ya arrancó) -->
+  <link rel="dns-prefetch" href="https://prod-back-pachasuite.onrender.com">
+  <link rel="dns-prefetch" href="https://czfxbrtdiiackpacflfm.supabase.co">
+
+  <!-- preconnect: máximo 4, solo para orígenes usados de inmediato en el primer render -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
