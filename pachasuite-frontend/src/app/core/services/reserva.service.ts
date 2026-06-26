@@ -144,8 +144,9 @@ export class ReservaService {
   calcularNoches(): number {
     const b = this.wizardState().busqueda;
     if (!b) return 0;
-    const d1 = new Date(b.checkIn);
-    const d2 = new Date(b.checkOut);
+    // Forzar parsing como fecha local agregando T00:00:00
+    const d1 = new Date(b.checkIn  + 'T00:00:00');
+    const d2 = new Date(b.checkOut + 'T00:00:00');
     return Math.max(1, Math.round((d2.getTime() - d1.getTime()) / 86400000));
   }
 

@@ -7,6 +7,18 @@ import { ExtraService } from '../../core/services/extra.service';
 import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/admin-sidebar.component';
 import { ReservaResponse, Habitacion, HuespedForm, Extra } from '../../core/models/models';
 
+// ✅ FIX ZONA HORARIA: helpers que trabajan en hora LOCAL (Peru UTC-5)
+function toLocalDateString(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function parseLocalDate(str: string): Date {
+  return new Date(str + 'T00:00:00'); // fuerza interpretación local, no UTC
+}
+
 type WizardStep = 'fechas' | 'habitacion' | 'huesped' | 'resumen';
 
 interface NuevaReservaForm {
@@ -49,7 +61,8 @@ export class ReservasComponent implements OnInit {
     checkIn: '', checkOut: '', adultos: 1, ninos: 0, extrasCodigos: [], pagoEstado: 'PENDIENTE'
   };
 
-  today = new Date().toISOString().split('T')[0];
+  // ✅ FIX 1: usar toLocalDateString en lugar de toISOString()
+  today = toLocalDateString(new Date());
 
   pagoOpciones = [
     { val: 'PENDIENTE', label: 'Pendiente' },
@@ -78,9 +91,11 @@ export class ReservasComponent implements OnInit {
     return h ? this.extraService.getExtrasDisponibles(h.amenidades) : [];
   });
 
+  // ✅ FIX 2: usar parseLocalDate para evitar interpretación UTC
   noches = computed(() => {
     if (!this.nuevaForm.checkIn || !this.nuevaForm.checkOut) return 0;
-    const ms = new Date(this.nuevaForm.checkOut).getTime() - new Date(this.nuevaForm.checkIn).getTime();
+    const ms = parseLocalDate(this.nuevaForm.checkOut).getTime()
+      - parseLocalDate(this.nuevaForm.checkIn).getTime();
     return Math.max(0, Math.round(ms / 86400000));
   });
 
@@ -162,7 +177,6 @@ export class ReservasComponent implements OnInit {
   pedirCancelacion(r: ReservaResponse): void {
     this.cancelError.set('');
     this.showCancelConfirm.set(r);
-
     this.detailReserva.set(null);
   }
 
@@ -208,12 +222,9 @@ export class ReservasComponent implements OnInit {
   extrasParaEdicion(): Extra[] {
     const r = this.showEditModal();
     if (!r) return [];
-    // Obtener habitación y filtrar
-    const hab = this.habitacionesDisp()
-      .find(h => h.id === r.habitacionId);
+    const hab = this.habitacionesDisp().find(h => h.id === r.habitacionId);
     return hab
-      ? this.extraService
-        .getExtrasDisponibles(hab.amenidades)
+      ? this.extraService.getExtrasDisponibles(hab.amenidades)
       : this.extraService.getAll();
   }
 
@@ -257,10 +268,12 @@ export class ReservasComponent implements OnInit {
 
 
   abrirNuevaReserva(): void {
+    // ✅ FIX 3: usar toLocalDateString para que las fechas default sean correctas en Peru
     const d1 = new Date(); d1.setDate(d1.getDate() + 1);
     const d2 = new Date(); d2.setDate(d2.getDate() + 2);
     this.nuevaForm = {
-      checkIn: d1.toISOString().split('T')[0], checkOut: d2.toISOString().split('T')[0],
+      checkIn:  toLocalDateString(d1),
+      checkOut: toLocalDateString(d2),
       adultos: 1, ninos: 0, pagoEstado: 'PENDIENTE',
       habitacionId: null, extrasCodigos: [], huespedes: []
     };
