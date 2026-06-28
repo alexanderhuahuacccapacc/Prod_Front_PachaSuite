@@ -12,18 +12,12 @@ const checkAuth = () => {
     return router.createUrlTree(['/admin/login']);
   }
 
-  // Sesión válida y es admin → entra.
-  if (auth.isAdmin()) return true;
+  // Recepcionista o admin (supervisando) → entra.
+  if (auth.isRecepcionista() || auth.isAdmin()) return true;
 
-  // Sesión válida pero con otro rol (ej. recepcionista) → lo mandamos a
-  // SU dashboard, sin cerrarle la sesión.
-  if (auth.isRecepcionista()) {
-    return router.createUrlTree(['/recepcion/dashboard']);
-  }
-
-  // Rol desconocido/sin rol → ahí sí, fuera.
+  // Rol desconocido/sin rol → fuera.
   auth.logout();
   return router.createUrlTree(['/admin/login']);
 };
 
-export const adminGuard: CanActivateFn & CanActivateChildFn & CanMatchFn = () => checkAuth();
+export const recepcionGuard: CanActivateFn & CanActivateChildFn & CanMatchFn = () => checkAuth();

@@ -21,6 +21,8 @@ export class LoginComponent {
   constructor(private authService: AuthService, private router: Router) {
     if (this.authService.isLoggedIn() && this.authService.isAdmin()) {
       this.router.navigate(['/admin/dashboard']);
+    } else if (this.authService.isLoggedIn() && this.authService.isRecepcionista()) {
+      this.router.navigate(['/recepcion/dashboard']);
     }
   }
 
@@ -37,7 +39,16 @@ export class LoginComponent {
     }
     this.loading.set(true);
     this.authService.login({ email: this.email, password: this.password }).subscribe({
-      next:  ()  => this.router.navigate(['/admin/dashboard']),
+      next: () => {
+        if (this.authService.isAdmin()) {
+          this.router.navigate(['/admin/dashboard']);
+        } else if (this.authService.isRecepcionista()) {
+          this.router.navigate(['/recepcion/dashboard']);
+        } else {
+          this.error.set('Tu cuenta no tiene un rol válido para acceder.');
+          this.loading.set(false);
+        }
+      },
       error: err => {
         this.error.set(err?.error?.message || 'Email o contraseña incorrectos.');
         this.loading.set(false);

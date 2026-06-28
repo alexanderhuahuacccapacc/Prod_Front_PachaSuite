@@ -50,6 +50,15 @@ export class AuthService {
     return user?.rol === 'ROLE_ADMIN';
   }
 
+  isRecepcionista(): boolean {
+    const user = this.loadUser();
+    return user?.rol === 'ROLE_RECEPCIONISTA';
+  }
+
+  getRol(): string | null {
+    return this.loadUser()?.rol ?? null;
+  }
+
   hasValidSession(): boolean {
     // Ya no podemos leer el token (está en cookie HttpOnly)
     // Solo verificamos si hay info de usuario guardada
