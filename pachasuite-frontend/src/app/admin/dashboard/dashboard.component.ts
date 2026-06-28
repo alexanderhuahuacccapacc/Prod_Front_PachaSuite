@@ -7,6 +7,7 @@ import { AdminSidebarComponent } from '../../shared/components/admin-sidebar/adm
 import { Habitacion, ReservaResponse } from '../../core/models/models';
 import { ContactoService, MensajeContacto } from '../../core/services/contacto.service';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../core/services/auth.service'; // ← AGREGADO
 
 @Component({
   selector: 'app-dashboard',
@@ -16,6 +17,9 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
+
+  // ── Rol ─────────────────────────────────────────────────────────
+  esAdmin = false; // ← AGREGADO
 
   // ── Habitaciones & Reservas ─────────────────────────────────────
   habitaciones = signal<Habitacion[]>([]);
@@ -47,10 +51,13 @@ export class DashboardComponent implements OnInit {
   constructor(
     private habitacionService: HabitacionService,
     private reservaService: ReservaService,
-    private mensajeService: ContactoService
+    private mensajeService: ContactoService,
+    private authService: AuthService // ← AGREGADO
   ) { }
 
   ngOnInit(): void {
+    this.esAdmin = this.authService.isAdmin(); // ← AGREGADO
+
     this.habitacionService.findAll().subscribe({
       next: list => { this.habitaciones.set(list); this.loadingH.set(false); },
       error: () => this.loadingH.set(false)
@@ -77,7 +84,6 @@ export class DashboardComponent implements OnInit {
       this.abrirBandeja();
     }
   }
-
 
   abrirBandeja(): void {
     this.bandejaAbierta.set(true);
@@ -114,11 +120,9 @@ export class DashboardComponent implements OnInit {
 
   abrirMensaje(m: MensajeContacto): void {
     this.mensajeSeleccionado.set(m);
-    // Marcar como leído si no lo estaba
     if (!m.leido) {
       this.mensajeService.marcarLeido(m.id).subscribe({
         next: updated => {
-          // Actualizar la lista local
           this.mensajes.update(list =>
             list.map(item => item.id === updated.id ? updated : item)
           );
@@ -174,6 +178,7 @@ export class DashboardComponent implements OnInit {
     };
     return map[estado] || '';
   }
+
   composerAbierto = signal(false);
   composerCuerpo = signal('');
   enviandoResp = signal(false);
@@ -202,12 +207,14 @@ export class DashboardComponent implements OnInit {
       error: () => this.enviandoResp.set(false)
     });
   }
+
   abrirBuscador(): void {
     this.buscarCodigo = '';
     this.reservaBuscada.set(null);
     this.errorBusqueda.set('');
     this.modalBusqueda.set(true);
   }
+
   buscarPorCodigo(): void {
     const codigo = (this.buscarCodigo || '').trim().toUpperCase();
     if (!codigo) return;
