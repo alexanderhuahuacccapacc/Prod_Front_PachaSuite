@@ -111,27 +111,31 @@ export class ReservaService {
   }
 
   crearReservaAdmin(req: AdminReservaRequest): Observable<ReservaResponse> {
-    return this.http
-      .post<ReservaResponse>(`${environment.apiUrl}/admin/reservas`, req)
-      .pipe(catchError(err => throwError(() => err)));
+    return this.authService.isAdmin()
+      ? this.http.post<ReservaResponse>(`${environment.apiUrl}/admin/reservas`, req)
+        .pipe(catchError(err => throwError(() => err)))
+      : this.crearReservaRecepcion(req);
   }
 
-  // ── RECEPCIONISTA: lista simple, List<ReservaDTO>, verbos PATCH ─
-  findAllRecepcion(): Observable<ReservaResponse[]> {
-    return this.http.get<ReservaResponse[]>(`${environment.apiUrl}/recepcion/reservas`);
+  // ── RECEPCIONISTA: misma forma de respuesta que admin (Page), mismos verbos PUT ─
+  findAllRecepcion(): Observable<any> {
+    return this.http.get<any>(`${environment.apiUrl}/recepcion/reservas`);
   }
 
   confirmarRecepcion(id: number): Observable<ReservaResponse> {
-    return this.http.patch<ReservaResponse>(`${environment.apiUrl}/recepcion/reservas/${id}/confirmar`, {});
+    return this.http.put<ReservaResponse>(`${environment.apiUrl}/recepcion/reservas/${id}/confirmar`, {});
   }
 
   cancelarRecepcion(id: number): Observable<ReservaResponse> {
-    return this.http.patch<ReservaResponse>(`${environment.apiUrl}/recepcion/reservas/${id}/cancelar`, {});
+    return this.http.put<ReservaResponse>(`${environment.apiUrl}/recepcion/reservas/${id}/cancelar`, {});
   }
 
-  // editarRecepcion usa PUT /{id} con ReservaUpdateDTO — distinto shape de body
-  // que EditarReservaRequest del admin (revisar ReservaUpdateDTO si se implementa).
-  crearReservaRecepcion(req: any): Observable<ReservaResponse> {
+  editarRecepcion(id: number, req: EditarReservaRequest): Observable<ReservaResponse> {
+    return this.http
+      .put<ReservaResponse>(`${environment.apiUrl}/recepcion/reservas/${id}/editar`, req)
+      .pipe(catchError(err => throwError(() => err)));
+  }
+  crearReservaRecepcion(req: AdminReservaRequest): Observable<ReservaResponse> {
     return this.http
       .post<ReservaResponse>(`${environment.apiUrl}/recepcion/reservas`, req)
       .pipe(catchError(err => throwError(() => err)));
@@ -199,8 +203,6 @@ export class ReservaService {
   }
 
   editar(id: number, req: EditarReservaRequest): Observable<ReservaResponse> {
-    // Alias retrocompatible — solo admin tiene "editar" formal hoy.
-    // Si se implementa edición de recepción, extender aquí igual que confirmar/cancelar.
-    return this.editarAdmin(id, req);
+    return this.authService.isAdmin() ? this.editarAdmin(id, req) : this.editarRecepcion(id, req);
   }
 }
