@@ -1,0 +1,80 @@
+<div class="admin-layout">
+
+  <!-- Sidebar compartido -->
+  <app-admin-sidebar></app-admin-sidebar>
+
+  <!-- Main -->
+  <main class="admin-main">
+
+    <!-- Topbar -->
+    <div class="admin-topbar">
+      <h1>Habitaciones</h1>
+      <div class="topbar-actions">
+        <span class="count-label">{{ habitaciones().length }} habitaciones en total</span>
+      </div>
+    </div>
+
+    <div class="admin-content">
+
+      <!-- Loading -->
+      @if (loading()) {
+        <div class="text-center py-5">
+          <div class="spinner mx-auto"></div>
+        </div>
+      }
+
+      <!-- Grid de habitaciones -->
+      @if (!loading()) {
+        <div class="row g-3">
+          @for (h of habitaciones(); track h.id) {
+            <div class="col-12 col-md-6 col-xl-4">
+              <div class="hab-card">
+
+                <!-- Header: número, nombre, badge estado (solo lectura) -->
+                <div class="hab-header">
+                  <div>
+                    <span class="hab-num">Nº {{ h.numero }}</span>
+                    <h5 class="hab-name">{{ h.nombre }}</h5>
+                  </div>
+                  <span class="badge" [ngClass]="badgeClass(h.estado)">{{ h.estado }}</span>
+                </div>
+
+                <!-- Meta -->
+                <div class="hab-meta">
+                  <span><i class="fa-solid fa-user-group"></i>{{ h.capacidad }} pers.</span>
+                  <span><i class="fa-solid fa-maximize"></i>{{ h.sizeM2 }} m²</span>
+                  <span><i class="fa-solid fa-bed"></i>{{ h.camas }}</span>
+                </div>
+
+                <!-- Precio -->
+                <div class="hab-price">
+                  ${{ h.precioBase }}<small>/noche</small>
+                </div>
+
+                <!-- Amenidades — único campo editable por recepcionista -->
+                <div class="amenidades-list mt-3">
+                  @for (a of amenidadesDef; track a.key) {
+                    <label class="toggle-wrap">
+                      <span class="toggle-label">
+                        <i class="fa-solid {{ a.icon }}"></i>{{ a.label }}
+                      </span>
+                      <input
+                        type="checkbox"
+                        class="toggle"
+                        [checked]="h.amenidades[a.key]"
+                        (change)="toggleAmenidad(h, a.key, $event)">
+                    </label>
+                  }
+                </div>
+
+                <!-- Sin acciones de Editar / Imágenes / Eliminar para recepcionista -->
+
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+    </div>
+  </main>
+</div>
