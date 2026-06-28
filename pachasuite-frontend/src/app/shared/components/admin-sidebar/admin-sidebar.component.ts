@@ -13,6 +13,7 @@ export class AdminSidebarComponent {
   private authService = inject(AuthService);
 
   get user() { return this.authService.currentUser(); }
+  get esAdmin() { return this.authService.isAdmin(); }
 
   logout(): void { this.authService.logout(); }
 }

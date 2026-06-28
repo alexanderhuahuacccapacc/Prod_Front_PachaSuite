@@ -2,17 +2,20 @@
 
   <div class="sidebar-brand">
     <h2><i class="fa-solid fa-mountain-sun me-2"></i>Pacha Suite</h2>
-    <span>Panel de administración</span>
+    <span>{{ esAdmin ? 'Panel de administración' : 'Panel de recepción' }}</span>
   </div>
 
   <nav class="sidebar-nav">
-    <a routerLink="/admin/dashboard"    routerLinkActive="active" class="nav-item">
+    <a [routerLink]="esAdmin ? '/admin/dashboard' : '/recepcion/dashboard'"
+       routerLinkActive="active" class="nav-item">
       <i class="fa-solid fa-gauge"></i> Dashboard
     </a>
-    <a routerLink="/admin/habitaciones" routerLinkActive="active" class="nav-item">
+    <a [routerLink]="esAdmin ? '/admin/habitaciones' : '/recepcion/habitaciones'"
+       routerLinkActive="active" class="nav-item">
       <i class="fa-solid fa-bed"></i> Habitaciones
     </a>
-    <a routerLink="/admin/reservas"     routerLinkActive="active" class="nav-item">
+    <a [routerLink]="esAdmin ? '/admin/reservas' : '/recepcion/reservas'"
+       routerLinkActive="active" class="nav-item">
       <i class="fa-solid fa-calendar-check"></i> Reservas
     </a>
   </nav>
