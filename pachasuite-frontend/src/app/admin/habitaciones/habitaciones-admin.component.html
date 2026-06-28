@@ -10,9 +10,10 @@
     <div class="admin-topbar">
       <h1>Habitaciones</h1>
       <div class="topbar-actions">
-        <span class="count-label">
-          {{ habitaciones().length }} habitaciones en total
-        </span>
+        <span class="count-label">{{ habitaciones().length }} habitaciones en total</span>
+        <button class="btn btn-primary" (click)="openCreate()">
+          <i class="fa-solid fa-plus me-2"></i>Nueva habitación
+        </button>
       </div>
     </div>
 
@@ -38,12 +39,10 @@
                     <span class="hab-num">Nº {{ h.numero }}</span>
                     <h5 class="hab-name">{{ h.nombre }}</h5>
                   </div>
-                  <span class="badge" [ngClass]="badgeClass(h.estado)">
-                    {{ h.estado }}
-                  </span>
+                  <span class="badge" [ngClass]="badgeClass(h.estado)">{{ h.estado }}</span>
                 </div>
 
-                <!-- Meta: capacidad, tamaño, camas -->
+                <!-- Meta -->
                 <div class="hab-meta">
                   <span><i class="fa-solid fa-user-group"></i>{{ h.capacidad }} pers.</span>
                   <span><i class="fa-solid fa-maximize"></i>{{ h.sizeM2 }} m²</span>
@@ -55,13 +54,12 @@
                   ${{ h.precioBase }}<small>/noche</small>
                 </div>
 
-                <!-- Amenidades con toggles -->
+                <!-- Amenidades -->
                 <div class="amenidades-list mt-3">
                   @for (a of amenidadesDef; track a.key) {
                     <label class="toggle-wrap">
                       <span class="toggle-label">
-                        <i class="fa-solid {{ a.icon }}"></i>
-                        {{ a.label }}
+                        <i class="fa-solid {{ a.icon }}"></i>{{ a.label }}
                       </span>
                       <input
                         type="checkbox"
@@ -81,6 +79,17 @@
                     <i class="fa-solid fa-images me-1"></i>Imágenes
                     @if (h.imagenes.length) {
                       <span class="badge-img-count">{{ h.imagenes.length }}</span>
+                    }
+                  </button>
+                  <button
+                    class="btn btn-danger btn-sm"
+                    (click)="eliminarHabitacion(h)"
+                    [disabled]="deletingRoom()[h.id]"
+                    title="Eliminar habitación">
+                    @if (deletingRoom()[h.id]) {
+                      <div class="spinner" style="width:14px;height:14px;border-width:2px"></div>
+                    } @else {
+                      <i class="fa-solid fa-trash"></i>
                     }
                   </button>
                   <div class="estado-btns">
@@ -106,7 +115,98 @@
     </div>
   </main>
 </div>
-<!-- ── Modal de imágenes ── -->
+
+<!-- ── Modal crear habitación ── -->
+@if (showCreate()) {
+  <div class="modal-overlay" (click)="closeCreate()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+
+      <h4 class="modal-title">
+        <i class="fa-solid fa-plus me-2 text-primary-c"></i>Nueva habitación
+      </h4>
+
+      <div class="row g-3">
+        <div class="col-sm-6">
+          <div class="form-field">
+            <label>Número *</label>
+            <input type="text" [(ngModel)]="createForm.numero" placeholder="Ej: 201">
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="form-field">
+            <label>Tipo *</label>
+            <select [(ngModel)]="createForm.tipo">
+              @for (t of tipos; track t.val) {
+                <option [value]="t.val">{{ t.label }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>Nombre de la suite *</label>
+        <input type="text" [(ngModel)]="createForm.nombre" placeholder="Ej: Suite Titicaca">
+      </div>
+
+      <div class="row g-3">
+        <div class="col-sm-6">
+          <div class="form-field">
+            <label>Capacidad (personas) *</label>
+            <input type="number" [(ngModel)]="createForm.capacidad" min="1">
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="form-field">
+            <label>Precio base (USD / noche) *</label>
+            <input type="number" [(ngModel)]="createForm.precioBase" min="0" step="5">
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-sm-6">
+          <div class="form-field">
+            <label>Camas</label>
+            <input type="text" [(ngModel)]="createForm.camas" placeholder="Ej: 1 cama king">
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="form-field">
+            <label>Tamaño (m²)</label>
+            <input type="number" [(ngModel)]="createForm.sizeM2" min="0">
+          </div>
+        </div>
+      </div>
+
+      @if (createError()) {
+        <div class="alert-error mb-3">
+          <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ createError() }}
+        </div>
+      }
+      @if (createOk()) {
+        <div class="alert-ok mb-3">
+          <i class="fa-solid fa-circle-check me-2"></i>Habitación creada correctamente.
+        </div>
+      }
+
+      <div class="modal-footer-btns">
+        <button class="btn btn-ghost" (click)="closeCreate()">Cancelar</button>
+        <button class="btn btn-primary" (click)="saveCreate()" [disabled]="saving()">
+          @if (saving()) {
+            <div class="spinner me-2" style="width:16px;height:16px;border-width:2px"></div>
+            Creando…
+          } @else {
+            <i class="fa-solid fa-plus me-2"></i>Crear habitación
+          }
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+
+<!-- ── Modal imágenes ── -->
 @if (selectedRoomForImages()) {
   <div class="modal-overlay" (click)="cerrarModalImagenes()">
     <div class="modal-box modal-images" (click)="$event.stopPropagation()">
@@ -116,7 +216,6 @@
         Imágenes — {{ selectedRoomForImages()!.numero }} {{ selectedRoomForImages()!.nombre }}
       </h4>
 
-      <!-- Galería de imágenes -->
       <div class="images-gallery">
         @if (selectedRoomForImages()!.imagenes.length) {
           <div class="images-grid">
@@ -129,9 +228,7 @@
                   [disabled]="deleting()[selectedRoomForImages()!.id]">
                   <i class="fa-solid fa-trash"></i>
                 </button>
-                @if (idx === 0) {
-                  <span class="main-badge">Principal</span>
-                }
+                @if (idx === 0) { <span class="main-badge">Principal</span> }
               </div>
             }
           </div>
@@ -142,7 +239,6 @@
           </div>
         }
 
-        <!-- Área de carga -->
         <div class="upload-area">
           <label class="upload-btn" [class.uploading]="uploading()[selectedRoomForImages()!.id]">
             <input
@@ -151,11 +247,9 @@
               (change)="subirImagen($event, selectedRoomForImages()!.id)"
               [disabled]="uploading()[selectedRoomForImages()!.id]">
             @if (uploading()[selectedRoomForImages()!.id]) {
-              <div class="spinner"></div>
-              <span>Subiendo...</span>
+              <div class="spinner"></div><span>Subiendo...</span>
             } @else {
-              <i class="fa-solid fa-cloud-upload-alt"></i>
-              <span>Seleccionar imagen</span>
+              <i class="fa-solid fa-cloud-upload-alt"></i><span>Seleccionar imagen</span>
             }
           </label>
           <p class="upload-hint">Formatos: JPG, PNG, GIF. Máx 15MB</p>
@@ -163,14 +257,13 @@
       </div>
 
       <div class="modal-footer-btns">
-        <button class="btn btn-primary" (click)="cerrarModalImagenes()">
-          Cerrar
-        </button>
+        <button class="btn btn-primary" (click)="cerrarModalImagenes()">Cerrar</button>
       </div>
 
     </div>
   </div>
 }
+
 <!-- ── Modal editar habitación ── -->
 @if (editHab()) {
   <div class="modal-overlay" (click)="closeEdit()">
@@ -181,13 +274,11 @@
         Editar — Nº {{ editHab()!.numero }}
       </h4>
 
-      <!-- Nombre -->
       <div class="form-field">
         <label>Nombre de la suite</label>
         <input type="text" [(ngModel)]="editForm.nombre" placeholder="Ej: Suite Simple Andes">
       </div>
 
-      <!-- Precio y estado en columnas -->
       <div class="row g-3">
         <div class="col-sm-6">
           <div class="form-field">
@@ -207,7 +298,22 @@
         </div>
       </div>
 
-      <!-- Feedback -->
+      <!-- NUEVOS: camas y tamaño -->
+      <div class="row g-3">
+        <div class="col-sm-6">
+          <div class="form-field">
+            <label>Camas</label>
+            <input type="text" [(ngModel)]="editForm.camas" placeholder="Ej: 1 cama king">
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="form-field">
+            <label>Tamaño (m²)</label>
+            <input type="number" [(ngModel)]="editForm.sizeM2" min="0">
+          </div>
+        </div>
+      </div>
+
       @if (editError()) {
         <div class="alert-error mb-3">
           <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ editError() }}
@@ -219,11 +325,8 @@
         </div>
       }
 
-      <!-- Botones -->
       <div class="modal-footer-btns">
-        <button class="btn btn-ghost" (click)="closeEdit()">
-          Cancelar
-        </button>
+        <button class="btn btn-ghost" (click)="closeEdit()">Cancelar</button>
         <button class="btn btn-primary" (click)="saveEdit()" [disabled]="saving()">
           @if (saving()) {
             <div class="spinner me-2" style="width:16px;height:16px;border-width:2px"></div>
