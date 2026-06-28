@@ -22,7 +22,7 @@ export class LoginComponent {
     if (this.authService.isLoggedIn() && this.authService.isAdmin()) {
       this.router.navigate(['/admin/dashboard']);
     } else if (this.authService.isLoggedIn() && this.authService.isRecepcionista()) {
-      this.router.navigate(['/admin/dashboard']);
+      this.router.navigate(['/recepcion/dashboard']);
     }
   }
 
@@ -43,7 +43,7 @@ export class LoginComponent {
         if (this.authService.isAdmin()) {
           this.router.navigate(['/admin/dashboard']);
         } else if (this.authService.isRecepcionista()) {
-          this.router.navigate(['/admin/dashboard']);
+          this.router.navigate(['/recepcion/dashboard']);
         } else {
           this.error.set('Tu cuenta no tiene un rol válido para acceder.');
           this.loading.set(false);
