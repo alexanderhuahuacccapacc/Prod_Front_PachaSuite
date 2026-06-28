@@ -11,7 +11,7 @@ export interface AmenidadDef { key: string; label: string; icon: string; }
   standalone: true,
   imports: [CommonModule, AdminSidebarComponent],
   templateUrl: './habitaciones-recepcion.component.html',
-  styleUrls: ['./habitaciones-recepcion.component.scss']
+  styleUrls: ['./habitaciones-admin.component.scss']
 })
 export class HabitacionesRecepcionComponent implements OnInit {
   habitaciones = signal<Habitacion[]>([]);
