@@ -18,7 +18,7 @@ const checkAuth = () => {
   // Sesión válida pero con otro rol (ej. recepcionista) → lo mandamos a
   // SU dashboard, sin cerrarle la sesión.
   if (auth.isRecepcionista()) {
-    return router.createUrlTree(['/recepcion/dashboard']);
+    return router.createUrlTree(['/admin/dashboard']);
   }
 
   // Rol desconocido/sin rol → ahí sí, fuera.
