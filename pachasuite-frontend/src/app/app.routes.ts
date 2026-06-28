@@ -63,7 +63,7 @@ export const routes: Routes = [
       },
       {
         path: 'habitaciones',
-        loadComponent: () => import('./admin/habitaciones/habitaciones-admin.component').then(m => m.HabitacionesAdminComponent)
+        loadComponent: () => import('./admin/habitaciones/habitaciones-recepcion.component').then(m => m.HabitacionesRecepcionComponent)
       },
       {
         path: 'reservas',
