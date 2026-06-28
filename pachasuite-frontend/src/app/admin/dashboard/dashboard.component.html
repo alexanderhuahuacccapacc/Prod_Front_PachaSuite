@@ -97,8 +97,7 @@
           <div class="info-row"><i class="fa-solid fa-phone"></i><span>{{ mensajeSeleccionado()!.telefono }}</span>
           </div>
           }
-          <div class="info-row"><i class="fa-regular fa-clock"></i><span>{{ mensajeSeleccionado()!.createdAt | date:'dd
-              MMM yyyy, HH:mm' }}</span></div>
+          <div class="info-row"><i class="fa-regular fa-clock"></i><span>{{ mensajeSeleccionado()!.createdAt | date:'ddMMM yyyy, HH:mm' }}</span></div>
         </div>
         <div class="modal-mensaje-texto">{{ mensajeSeleccionado()!.mensaje }}</div>
         <div class="modal-footer">
@@ -337,8 +336,7 @@
             </div>
             <div class="info-row">
               <i class="fa-solid fa-user"></i>
-              <span><strong>Huéspedes:</strong> {{ reserva.adultos }} adultos{{ reserva.ninos ? ', ' + reserva.ninos + '
-                niños' : '' }}</span>
+              <span><strong>Huéspedes:</strong> {{ reserva.adultos }} adultos{{ reserva.ninos ? ', ' + reserva.ninos + 'niños' : '' }}</span>
             </div>
             <div class="info-row">
               <i class="fa-solid fa-dollar-sign"></i>
